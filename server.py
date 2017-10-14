@@ -89,11 +89,11 @@ def index():
                    url=url_for('list_pets', _external=True)), HTTP_200_OK
 
 ######################################################################
-# LIST ALL PETS
+# LIST ALL ORDERS
 ######################################################################
-@app.route('/pets', methods=['GET'])
+@app.route('/orders', methods=['GET'])
 def list_pets():
-    """ Retrieves a list of pets from the database """
+    """ Retrieves a list of orders from the database """
     results = []
     category = request.args.get('category')
     if category:
@@ -104,11 +104,11 @@ def list_pets():
     return jsonify([pet.serialize() for pet in results]), HTTP_200_OK
 
 ######################################################################
-# RETRIEVE A PET
+# RETRIEVE A ORDER
 ######################################################################
-@app.route('/pets/<int:id>', methods=['GET'])
+@app.route('/orders/<int:id>', methods=['GET'])
 def get_pets(id):
-    """ Retrieves a Pet with a specific id """
+    """ Retrieves a Order with a specific id """
     pet = Pet.find(id)
     if pet:
         message = pet.serialize()
@@ -120,11 +120,11 @@ def get_pets(id):
     return jsonify(message), return_code
 
 ######################################################################
-# ADD A NEW PET
+# ADD A NEW ORDER
 ######################################################################
-@app.route('/pets', methods=['POST'])
+@app.route('/orders', methods=['POST'])
 def create_pets():
-    """ Creates a Pet in the datbase from the posted database """
+    """ Creates a Order in the datbase from the posted database """
     payload = request.get_json()
     pet = Pet()
     pet.deserialize(payload)
@@ -135,11 +135,11 @@ def create_pets():
     return response
 
 ######################################################################
-# UPDATE AN EXISTING PET
+# UPDATE AN EXISTING ORDER
 ######################################################################
-@app.route('/pets/<int:id>', methods=['PUT'])
+@app.route('/orders/<int:id>', methods=['PUT'])
 def update_pets(id):
-    """ Updates a Pet in the database fom the posted database """
+    """ Updates a Order in the database fom the posted database """
     pet = Pet.find(id)
     if pet:
         payload = request.get_json()
@@ -154,11 +154,11 @@ def update_pets(id):
     return jsonify(message), return_code
 
 ######################################################################
-# DELETE A PET
+# DELETE A ORDER
 ######################################################################
-@app.route('/pets/<int:id>', methods=['DELETE'])
+@app.route('/orders/<int:id>', methods=['DELETE'])
 def delete_pets(id):
-    """ Removes a Pet from the database that matches the id """
+    """ Removes a Order from the database that matches the id """
     pet = Pet.find(id)
     if pet:
         pet.delete()

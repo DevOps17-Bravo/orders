@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Models for Pet Demo Service
+Models for Order Demo Service
 
 All of the models are stored in this module
 
 Models
 ------
-Pet - A Pet used in the Pet Store
+Order - An Order used in the E-Commerce
 
 """
 import threading
@@ -29,23 +29,23 @@ class DataValidationError(Exception):
 
 class Pet(object):
     """
-    Class that represents a Pet
+    Class that represents an Order
 
-    This version uses an in-memory collection of pets for testing
+    This version uses an in-memory collection of orders for testing
     """
     lock = threading.Lock()
     data = []
     index = 0
 
     def __init__(self, id=0, name='', category=''):
-        """ Initialize a Pet """
+        """ Initialize an Order """
         self.id = id
         self.name = name
         self.category = category
 
     def save(self):
         """
-        Saves a Pet to the data store
+        Saves an Order to the data store
         """
         if self.id == 0:
             self.id = self.__next_index()
@@ -57,19 +57,19 @@ class Pet(object):
                     break
 
     def delete(self):
-        """ Removes a Pet from the data store """
+        """ Removes an Order from the data store """
         Pet.data.remove(self)
 
     def serialize(self):
-        """ Serializes a Pet into a dictionary """
+        """ Serializes an Order into a dictionary """
         return {"id": self.id, "name": self.name, "category": self.category}
 
     def deserialize(self, data):
         """
-        Deserializes a Pet from a dictionary
+        Deserializes an Order from a dictionary
 
         Args:
-            data (dict): A dictionary containing the Pet data
+            data (dict): A dictionary containing the Order data
         """
         if not isinstance(data, dict):
             raise DataValidationError('Invalid pet: body of request contained bad or no data')
@@ -91,19 +91,19 @@ class Pet(object):
 
     @staticmethod
     def all():
-        """ Returns all of the Pets in the database """
+        """ Returns all of the Orders in the database """
         return [pet for pet in Pet.data]
 
     @staticmethod
     def remove_all():
-        """ Removes all of the Pets from the database """
+        """ Removes all of the Orders from the database """
         del Pet.data[:]
         Pet.index = 0
         return Pet.data
 
     @staticmethod
     def find(pet_id):
-        """ Finds a Pet by it's ID """
+        """ Finds an Order by it's ID """
         if not Pet.data:
             return None
         pets = [pet for pet in Pet.data if pet.id == pet_id]
@@ -113,18 +113,18 @@ class Pet(object):
 
     @staticmethod
     def find_by_category(category):
-        """ Returns all of the Pets in a category
+        """ Returns all of the Orders in a category
 
         Args:
-            category (string): the category of the Pets you want to match
+            category (string): the category of the Orders you want to match
         """
         return [pet for pet in Pet.data if pet.category == category]
 
     @staticmethod
     def find_by_name(name):
-        """ Returns all Pets with the given name
+        """ Returns all Orders with the given name
 
         Args:
-            name (string): the name of the Pets you want to match
+            name (string): the name of the Orders you want to match
         """
         return [pet for pet in Pet.data if pet.name == name]
