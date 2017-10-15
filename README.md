@@ -1,19 +1,32 @@
 # orders
 A collection of order items created from products
 
-1. Instructions
+##1. Instructions for using the environment 
 
-//Download from github 
+**Download from github**
+ 
 git clone https://github.com/DevOps17-Bravo/orders.git
-//to start vm
+
+**to start vm**
+
 vagrant up 
-//connect to the environment 
+
+**connect to the environment**
+ 
 vagrant ssh
-//get into folder 
+
+**get into folder** 
+
 cd /vagrant
-//run server
+
+**run server**
+
 python server.py
-//exit environment 
+
+**exit environment**
+
 exit
-//shut down vm
+
+**shut down vm**
+
 vagrant halt
