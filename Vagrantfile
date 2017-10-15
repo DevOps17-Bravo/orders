@@ -12,7 +12,7 @@ Vagrant.configure(2) do |config|
 
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 5000, host: 5000
+  config.vm.network "forwarded_port", guest: 5000, host: 8080
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -46,5 +46,44 @@ Vagrant.configure(2) do |config|
     # Make vi look nice
     echo "colorscheme desert" > ~/.vimrc
   SHELL
+
+  config.vm.provision "shell", inline: <<-SHELL
+    # Prepare MySQL data share
+    sudo mkdir -p /var/lib/mysql
+    sudo chown vagrant:vagrant /var/lib/mysql
+  SHELL
+
+  ######################################################################
+  # Add Python Flask environment
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y git python-pip python-dev build-essential
+    pip install --upgrade pip
+    apt-get -y autoremove
+    # Make vi look nice ;-)
+    sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+    # Install app dependencies
+    cd /vagrant
+    sudo pip install -r requirements.txt
+  SHELL
+
+  ######################################################################
+  # Add MySQL docker container
+  ######################################################################
+  config.vm.provision "docker" do |d|
+    d.pull_images "mariadb"
+    d.run "mariadb",
+      args: "--restart=always -d --name mariadb -p 3306:3306 -v /var/lib/mysql:/var/lib/mysql  -e MYSQL_ROOT_PASSWORD=passw0rd"
+  end
+  
+  ######################################################################
+  # Add Redis docker container
+  ######################################################################
+  config.vm.provision "docker" do |d|
+    d.pull_images "redis:alpine"
+    d.run "redis:alpine",
+      args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
+  end
 
 end
