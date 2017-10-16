@@ -38,19 +38,18 @@ class TestPets(unittest.TestCase):
         self.assertEqual( len(orders), 1)
 
     def test_update_a_pet(self):
-        pet = Pet(0, "fido", "dog")
+        order = Order("12345", "54321", "9999", "98765", [("123", 3)])
         pet.save()
-        self.assertEqual( pet.id, 1 )
-        # Change it an save it
-        pet.category = "k9"
-        pet.save()
-        self.assertEqual( pet.id, 1 )
+        self.assertEqual( order.customer_id, "12345")
+        # Change order_total an save it
+        order.order_total = "100"
+        order.save()
+        self.assertEqual( order.order_total, "100")
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
-        pets = Pet.all()
-        self.assertEqual( len(pets), 1)
-        self.assertEqual( pets[0].category, "k9")
-
+        orders = Order.all()
+        self.assertEqual( len(orders), 1)
+        self.assertEqual( orders[0].order_total, "100")
     def test_delete_a_pet(self):
         order = Order('0', '0', 0, '0')
         order.save()
