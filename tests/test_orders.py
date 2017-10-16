@@ -14,10 +14,10 @@ class TestPets(unittest.TestCase):
     def setUp(self):
         Pet.remove_all()
 
-    def test_create_a_pet(self):
-        # Create a pet and assert that it exists
-        pet = Pet(0, "fido", "dog")
-        self.assertTrue( pet != None )
+    def test_create_an_order(self):
+        # Create an order and assert that it exists
+        order = Order("12345", "54321", "9999", "98765", [("123", 3)])
+        self.assertTrue( order != None )
         self.assertEqual( pet.id, 0 )
         self.assertEqual( pet.name, "fido" )
         self.assertEqual( pet.category, "dog" )
