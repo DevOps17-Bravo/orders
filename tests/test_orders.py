@@ -16,19 +16,19 @@ class TestPets(unittest.TestCase):
 
     def test_create_an_order(self):
         # Create an order and assert that it exists
-        order = Order("123", "321", "999", "98765", [("1", 3)])
+        order = Order("123", "321", 999, "98765", [("1", 3)])
         self.assertTrue( order != None )
         self.assertEqual( order.order_id, "123" )
         self.assertEqual( order.customer_id, "321" )
-        self.assertEqual( order.order_total, "999" )
+        self.assertEqual( order.order_total, 999 )
         self.assertEqual( order.order_time, "98765" )
         self.assertEqual( order.order_items, [("1", 3)] )
 
     def test_add_an_order(self):
         # Create a pet and add it to the database
         orders = Order.all()
-        self.assertEqual( orders, [])
-        order = Order("123", "321", "999", "98765", [("1", 3)])
+        self.assertEqual( orders, [] )
+        order = Order("123", "321", 999, "98765", [("1", 3)] )
         self.assertTrue( order != None )
         self.assertEqual( order.order_id, "123" )
         order.save()
@@ -59,24 +59,31 @@ class TestPets(unittest.TestCase):
         self.assertEqual( len(Order.all()), 0)
 
     def test_serialize_a_pet(self):
-        pet = Pet(0, "fido", "dog")
-        data = pet.serialize()
+        order = Order("123", "321", 999, "98765", [("1", 3)])
+        data = order.serialize()
         self.assertNotEqual( data, None )
-        self.assertIn( 'id', data )
-        self.assertEqual( data['id'], 0 )
-        self.assertIn( 'name', data )
-        self.assertEqual( data['name'], "fido" )
-        self.assertIn( 'category', data )
-        self.assertEqual( data['category'], "dog" )
+        self.assertIn( "order_id", data )
+        self.assertEqual( data["order_id"], "123" )
+        self.assertIn( "customer_id", data )
+        self.assertEqual( data["customer_id"], "321" )
+        self.assertIn( "order_total", data )
+        self.assertEqual( data["order_total"], 999 )
+        self.assertIn( "order_time", data )
+        self.assertEqual( data["order_time"], "98765" )
+        self.assertIn( "order_items", data )
+        self.assertEqual( data["order_items"], [("1", 3)] )
 
     def test_deserialize_a_pet(self):
-        data = {"id":1, "name": "kitty", "category": "cat"}
-        pet = Pet()
-        pet.deserialize(data)
-        self.assertNotEqual( pet, None )
-        self.assertNotEqual( pet.id, 0 )
-        self.assertEqual( pet.name, "kitty" )
-        self.assertEqual( pet.category, "cat" )
+        data = {"order_id":"123", "customer_id": "321", "order_total": 999, "order_time": "98765", "order_items":[("1", 3)]}
+        order = Order()
+        order.deserialize(data)
+        self.assertNotEqual( order, None )
+        self.assertNotEqual( order.order_id, "123" )
+        self.assertEqual( order.customer_id, "321" )
+        self.assertEqual( order.order_total, 999 )
+        self.assertEqual( order.order_time, "98765" )
+        self.assertEqual( order.order_items, [("1", 3)] )
+
 
     def test_deserialize_a_pet_with_no_name(self):
         pet = Pet()
