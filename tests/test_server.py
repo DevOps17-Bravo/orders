@@ -84,15 +84,15 @@ class TestPetServer(unittest.TestCase):
         resp = self.app.put('/pets/2', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
-    def test_delete_pet(self):
+    def test_delete_order(self):
         # save the current number of pets for later comparrison
-        pet_count = self.get_pet_count()
+        order_count = self.get_order_count()
         # delete a pet
-        resp = self.app.delete('/pets/2', content_type='application/json')
+        resp = self.app.delete('/orders/2', content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_204_NO_CONTENT )
         self.assertEqual( len(resp.data), 0 )
-        new_count = self.get_pet_count()
-        self.assertEqual( new_count, pet_count - 1)
+        new_count = self.get_order_count()
+        self.assertEqual( new_count, order_count - 1)
 
     def test_create_pet_with_no_name(self):
         new_pet = {'category': 'dog'}
