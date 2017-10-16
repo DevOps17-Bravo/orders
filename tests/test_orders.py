@@ -12,7 +12,7 @@ from models import Pet, DataValidationError
 class TestPets(unittest.TestCase):
 
     def setUp(self):
-        Pet.remove_all()
+        Order.remove_all()
 
     def test_create_an_order(self):
         # Create an order and assert that it exists
@@ -24,18 +24,18 @@ class TestPets(unittest.TestCase):
         self.assertEqual( order.order_time, "98765" )
         self.assertEqual( order.order_items, [("1", 3)] )
 
-    def test_add_a_pet(self):
+    def test_add_an_order(self):
         # Create a pet and add it to the database
-        pets = Pet.all()
-        self.assertEqual( pets, [])
-        pet = Pet(0, "fido", "dog")
-        self.assertTrue( pet != None )
-        self.assertEqual( pet.id, 0 )
-        pet.save()
+        orders = Order.all()
+        self.assertEqual( orders, [])
+        order = Order("123", "321", "999", "98765", [("1", 3)])
+        self.assertTrue( order != None )
+        self.assertEqual( order.order_id, "123" )
+        order.save()
         # Asert that it was assigned an id and shows up in the database
-        self.assertEqual( pet.id, 1 )
-        pets = Pet.all()
-        self.assertEqual( len(pets), 1)
+        self.assertEqual( order.order_id, "123" )
+        orders = Order.all()
+        self.assertEqual( len(orders), 1)
 
     def test_update_a_pet(self):
         pet = Pet(0, "fido", "dog")
