@@ -19,24 +19,24 @@ HTTP_409_CONFLICT = 409
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestPetServer(unittest.TestCase):
+class TestOrderServer(unittest.TestCase):
 
     def setUp(self):
         server.app.debug = True
         self.app = server.app.test_client()
-        server.Pet(0,'fido','dog').save()
-        server.Pet(0,'kitty','cat').save()
+        server.Order("1", "2", 3, "4").save()
+        server.Order("5", "6", 7, "8").save()
 
     def tearDown(self):
-        server.Pet.remove_all()
+        server.Order.remove_all()
 
     def test_index(self):
         resp = self.app.get('/')
         self.assertEqual( resp.status_code, HTTP_200_OK )
-        self.assertTrue ('Pet Demo REST API Service' in resp.data)
+        self.assertTrue ('Order Demo REST API Service' in resp.data)
 
-    def test_get_pet_list(self):
-        resp = self.app.get('/pets')
+    def test_get_order_list(self):
+        resp = self.app.get('/orders')
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         self.assertTrue( len(resp.data) > 0 )
