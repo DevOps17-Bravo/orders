@@ -7,6 +7,10 @@ A collection of order items created from products
  
 git clone https://github.com/DevOps17-Bravo/orders.git
 
+**Enter the folder**
+
+cd orders
+
 **to start vm**
 
 vagrant up 
