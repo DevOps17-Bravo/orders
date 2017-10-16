@@ -52,12 +52,12 @@ class TestPets(unittest.TestCase):
         self.assertEqual( pets[0].category, "k9")
 
     def test_delete_a_pet(self):
-        pet = Pet(0, "fido", "dog")
-        pet.save()
-        self.assertEqual( len(Pet.all()), 1)
+        order = Order('0', '0', 0, '0')
+        order.save()
+        self.assertEqual( len(Order.all()), 1)
         # delete the pet and make sure it isn't in the database
-        pet.delete()
-        self.assertEqual( len(Pet.all()), 0)
+        order.delete()
+        self.assertEqual( len(Order.all()), 0)
 
     def test_serialize_a_pet(self):
         pet = Pet(0, "fido", "dog")
