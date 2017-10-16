@@ -16,11 +16,13 @@ class TestPets(unittest.TestCase):
 
     def test_create_an_order(self):
         # Create an order and assert that it exists
-        order = Order("12345", "54321", "9999", "98765", [("123", 3)])
+        order = Order("123", "321", "999", "98765", [("1", 3)])
         self.assertTrue( order != None )
-        self.assertEqual( pet.id, 0 )
-        self.assertEqual( pet.name, "fido" )
-        self.assertEqual( pet.category, "dog" )
+        self.assertEqual( order.order_id, "123" )
+        self.assertEqual( order.customer_id, "321" )
+        self.assertEqual( order.order_total, "999" )
+        self.assertEqual( order.order_time, "98765" )
+        self.assertEqual( order.order_items, [("1", 3)] )
 
     def test_add_a_pet(self):
         # Create a pet and add it to the database
