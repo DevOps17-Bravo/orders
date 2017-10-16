@@ -52,7 +52,7 @@ class TestPets(unittest.TestCase):
         self.assertEqual( pets[0].category, "k9")
 
     def test_delete_a_pet(self):
-        order = Order('0', '0', 0, '0')
+        order = Order("1", "", 0, "", [])
         order.save()
         self.assertEqual( len(Order.all()), 1)
         # delete the pet and make sure it isn't in the database
@@ -92,30 +92,22 @@ class TestPets(unittest.TestCase):
         pet = Pet()
         self.assertRaises(DataValidationError, pet.deserialize, "data")
 
-    def test_find_pet(self):
-        Pet(0, "fido", "dog").save()
-        Pet(0, "kitty", "cat").save()
-        pet = Pet.find(2)
-        self.assertIsNot( pet, None)
-        self.assertEqual( pet.id, 2 )
-        self.assertEqual( pet.name, "kitty" )
+    def test_find_order(self):
+        Pet("1", "", 0, "", []).save()
+        Pet("2", "", 0, "", []).save()
+        order = Order.find("2")
+        self.assertIsNot( order, None)
+        self.assertEqual( order.order_id, "2" )
+        self.assertEqual( order.name, "" )
 
-    def test_find_with_no_pets(self):
-        pet = Pet.find(1)
-        self.assertIs( pet, None)
+    def test_find_with_no_orders(self):
+        order = Order.find("1")
+        self.assertIs( order, None)
 
-    def test_pet_not_found(self):
-        Pet(0, "fido", "dog").save()
-        pet = Pet.find(2)
-        self.assertIs( pet, None)
-
-    def test_find_by_category(self):
-        Pet(0, "fido", "dog").save()
-        Pet(0, "kitty", "cat").save()
-        pets = Pet.find_by_category("cat")
-        self.assertNotEqual( len(pets), 0 )
-        self.assertEqual( pets[0].category, "cat" )
-        self.assertEqual( pets[0].name, "kitty" )
+    def test_order_not_found(self):
+        Order("1", "", 1, "", []).save()
+        order = Order.find("2")
+        self.assertIs( order, None)
 
 
 ######################################################################
