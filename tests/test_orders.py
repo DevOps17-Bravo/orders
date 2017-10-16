@@ -50,6 +50,7 @@ class TestPets(unittest.TestCase):
         orders = Order.all()
         self.assertEqual( len(orders), 1)
         self.assertEqual( orders[0].order_total, "100")
+
     def test_delete_a_pet(self):
         order = Order("1", "", 0, "", [])
         order.save()
@@ -58,7 +59,7 @@ class TestPets(unittest.TestCase):
         order.delete()
         self.assertEqual( len(Order.all()), 0)
 
-    def test_serialize_a_pet(self):
+    def test_serialize_an_order(self):
         order = Order("123", "321", 999, "98765", [("1", 3)])
         data = order.serialize()
         self.assertNotEqual( data, None )
@@ -73,7 +74,7 @@ class TestPets(unittest.TestCase):
         self.assertIn( "order_items", data )
         self.assertEqual( data["order_items"], [("1", 3)] )
 
-    def test_deserialize_a_pet(self):
+    def test_deserialize_an_order(self):
         data = {"order_id":"123", "customer_id": "321", "order_total": 999, "order_time": "98765", "order_items":[("1", 3)]}
         order = Order()
         order.deserialize(data)
@@ -85,16 +86,16 @@ class TestPets(unittest.TestCase):
         self.assertEqual( order.order_items, [("1", 3)] )
 
 
-    def test_deserialize_a_pet_with_no_name(self):
-        pet = Pet()
-        data = {"id":0, "category": "cat"}
-        self.assertRaises(DataValidationError, pet.deserialize, data)
+    def test_deserialize_an_order_with_no_customer_id(self):
+        order = Order()
+        data = {"order_id":"123", "order_total": 999, "order_time": "98765", "order_items":[("1", 3)]}
+        self.assertRaises(DataValidationError, order.deserialize, data)
 
-    def test_deserialize_a_pet_with_no_data(self):
+    def test_deserialize_an_order_with_no_data(self):
         pet = Pet()
-        self.assertRaises(DataValidationError, pet.deserialize, None)
+        self.assertRaises(DataValidationError, order.deserialize, None)
 
-    def test_deserialize_a_pet_with_bad_data(self):
+    def test_deserialize_an_order_with_bad_data(self):
         pet = Pet()
         self.assertRaises(DataValidationError, pet.deserialize, "data")
 
