@@ -92,12 +92,12 @@ class TestPets(unittest.TestCase):
         self.assertRaises(DataValidationError, order.deserialize, data)
 
     def test_deserialize_an_order_with_no_data(self):
-        pet = Pet()
+        order = Order()
         self.assertRaises(DataValidationError, order.deserialize, None)
 
     def test_deserialize_an_order_with_bad_data(self):
-        pet = Pet()
-        self.assertRaises(DataValidationError, pet.deserialize, "data")
+        order = Order()
+        self.assertRaises(DataValidationError, order.deserialize, "data")
 
     def test_find_order(self):
         Order("1", "1", 0, "", []).save()
