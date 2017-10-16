@@ -100,12 +100,14 @@ class TestPets(unittest.TestCase):
         self.assertRaises(DataValidationError, pet.deserialize, "data")
 
     def test_find_order(self):
-        Pet("1", "", 0, "", []).save()
-        Pet("2", "", 0, "", []).save()
+        Order("1", "1", 0, "", []).save()
+        Order("2", "2", 0, "", []).save()
         order = Order.find("2")
         self.assertIsNot( order, None)
         self.assertEqual( order.order_id, "2" )
-        self.assertEqual( order.name, "" )
+        self.assertEqual( order.customer_id, "2")
+        self.assertEqual( order.order_total, 0)
+        self.assertEqual( order.order_items, [])
 
     def test_find_with_no_orders(self):
         order = Order.find("1")
