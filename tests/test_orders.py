@@ -4,12 +4,12 @@
 
 import unittest
 import json
-from models import Pet, DataValidationError
+from models import Order, DataValidationError
 
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestPets(unittest.TestCase):
+class TestOrders(unittest.TestCase):
 
     def setUp(self):
         Order.remove_all()
@@ -24,7 +24,7 @@ class TestPets(unittest.TestCase):
         self.assertEqual( order.order_time, "98765" )
 
     def test_add_an_order(self):
-        # Create a pet and add it to the database
+        # Create an order and add it to the database
         orders = Order.all()
         self.assertEqual( orders, [] )
         order = Order("123", "321", 999, "98765" )
@@ -36,9 +36,9 @@ class TestPets(unittest.TestCase):
         orders = Order.all()
         self.assertEqual( len(orders), 1)
 
-    def test_update_a_pet(self):
+    def test_update_an_order(self):
         order = Order("12345", "54321", 9999, "98765" )
-        pet.save()
+        order.save()
         self.assertEqual( order.customer_id, "12345")
         # Change order_total an save it
         order.order_total = 100
@@ -50,11 +50,11 @@ class TestPets(unittest.TestCase):
         self.assertEqual( len(orders), 1 )
         self.assertEqual( orders[0].order_total, 100 )
 
-    def test_delete_a_pet(self):
+    def test_delete_an_order(self):
         order = Order("1", "", 0, "")
         order.save()
         self.assertEqual( len(Order.all()), 1 )
-        # delete the pet and make sure it isn't in the database
+        # delete the order and make sure it isn't in the database
         order.delete()
         self.assertEqual( len(Order.all()), 0 )
 
@@ -119,5 +119,5 @@ class TestPets(unittest.TestCase):
 ######################################################################
 if __name__ == '__main__':
     unittest.main()
-    # suite = unittest.TestLoader().loadTestsFromTestCase(TestPets)
+    # suite = unittest.TestLoader().loadTestsFromTestCase(TestOrders)
     # unittest.TextTestRunner(verbosity=2).run(suite)
