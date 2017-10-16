@@ -13,7 +13,11 @@ cd orders
 
 **to start vm**
 
-vagrant up 
+vagrant up
+
+**to update vagrantfile**
+
+vagrant provision
 
 **connect to the environment**
  
