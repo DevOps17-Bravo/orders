@@ -78,10 +78,10 @@ class TestOrderServer(unittest.TestCase):
         new_json = json.loads(resp.data)
         self.assertEqual (new_json['category'], 'tabby')
 
-    def test_update_pet_with_no_name(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.put('/pets/2', data=data, content_type='application/json')
+    def test_update_order_with_no_customer_id(self):
+        new_order = {"order_total" : 3, "order_time": "4"}
+        data = json.dumps(new_order)
+        resp = self.app.put('/orders/1', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_delete_order(self):
