@@ -27,7 +27,7 @@ class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
     pass
 
-class Pet(object):
+class Order(object):
     """
     Class that represents an Order
 
@@ -37,11 +37,12 @@ class Pet(object):
     data = []
     index = 0
 
-    def __init__(self, id=0, name='', category=''):
+    def __init__(self, order_id='', customer_id='', order_total=0, order_time=''):
         """ Initialize an Order """
-        self.id = id
-        self.name = name
-        self.category = category
+        self.order_id = order_id
+        self.customer_id = customer_id
+        self.order_total = order_total
+        self.order_time = order_time
 
     def save(self):
         """
