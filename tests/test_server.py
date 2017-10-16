@@ -87,23 +87,29 @@ class TestPetServer(unittest.TestCase):
     def test_delete_order(self):
         # save the current number of pets for later comparrison
         order_count = self.get_order_count()
-        # delete a pet
+        # delete a order
         resp = self.app.delete('/orders/2', content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_204_NO_CONTENT )
         self.assertEqual( len(resp.data), 0 )
         new_count = self.get_order_count()
         self.assertEqual( new_count, order_count - 1)
 
-    def test_create_pet_with_no_name(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data, content_type='application/json')
+    def test_create_order_with_no_customer_id(self):
+        new_order = {"order_id": "10", "order_total": 100, "order_time": "10112017"}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
-    def test_create_pet_with_no_content_type(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data)
+    def test_create_order_with_no_order_total(self):
+        new_order = {"order_id": "10", "customer_id": "01", "order_time": "10112017"}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
+
+    def test_create_order_with_no_order_time(self):
+        new_order = {"order_id": "10", "customer_id": "01","order_total": 100}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_get_nonexisting_pet(self):
