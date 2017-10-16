@@ -37,13 +37,12 @@ class Order(object):
     data = []
     index = 0
 
-    def __init__(self, order_id='', customer_id='', order_total=0, order_time='', order_items=[]):
+    def __init__(self, order_id='', customer_id='', order_total=0, order_time=''):
         """ Initialize an Order """
         self.order_id = order_id
         self.customer_id = customer_id
         self.order_total = order_total
         self.order_time = order_time
-        self.order_items = order_items
 
     def save(self):
         """
