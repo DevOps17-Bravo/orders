@@ -50,11 +50,11 @@ class Order(object):
         """
         if self.order_id == 0:
             self.order_id = self.__next_index()
-            Pet.data.append(self)
+            Order.data.append(self)
         else:
             for i in range(len(Order.data)):
                 if Order.data[i].order_id == self.order_id:
-                    Pet.data[i] = self
+                    Order.data[i] = self
                     break
 
     def delete(self):
