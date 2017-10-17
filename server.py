@@ -164,7 +164,7 @@ def delete_orders(id):
     """ Removes a Order from the database that matches the id """
     order = Order.find(id)
     if order:
-        orders.delete()
+        order.delete()
     return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
