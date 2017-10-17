@@ -138,7 +138,7 @@ def create_pets():
 # UPDATE AN EXISTING ORDER
 ######################################################################
 @app.route('/orders/<int:id>', methods=['PUT'])
-def update_pets(id):
+def update_orders(id):
     """ Updates a Order in the database fom the posted database """
     pet = Pet.find(id)
     if pet:
@@ -157,11 +157,11 @@ def update_pets(id):
 # DELETE A ORDER
 ######################################################################
 @app.route('/orders/<int:id>', methods=['DELETE'])
-def delete_pets(id):
+def delete_orders(id):
     """ Removes a Order from the database that matches the id """
-    pet = Pet.find(id)
-    if pet:
-        pet.delete()
+    order = Order.find(id)
+    if order:
+        orders.delete()
     return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
@@ -169,6 +169,8 @@ def delete_pets(id):
 ######################################################################
 if __name__ == "__main__":
     # dummy data for testing
-    Pet(0, 'fido', 'dog').save()
-    Pet(0, 'kitty', 'cat').save()
+
+    Order("1","01",10,"11:01").save()
+    Order("2","02",20,"17:11").save()
+
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
