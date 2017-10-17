@@ -122,23 +122,25 @@ def get_orders(id):
 ######################################################################
 # ADD A NEW ORDER
 ######################################################################
-@app.route("/orders", methods=["POST"])
-def create_pets():
+
+@app.route('/orders', methods=['POST'])
+def create_orders():
     """ Creates a Order in the datbase from the posted database """
     payload = request.get_json()
-    pet = Pet()
-    pet.deserialize(payload)
-    pet.save()
-    message = pet.serialize()
+    order = Order()
+    order.deserialize(payload)
+    order.save()
+    message = order.serialize()
     response = make_response(jsonify(message), HTTP_201_CREATED)
-    response.headers["Location"] = url_for("get_pets", id=pet.id, _external=True)
+    response.headers['Location'] = url_for('get_orders', id=order.order_id, _external=True)
     return response
 
 ######################################################################
 # UPDATE AN EXISTING ORDER
 ######################################################################
-@app.route("/orders/<int:id>", methods=["PUT"])
-def update_pets(id):
+
+@app.route('/orders/<int:id>', methods=['PUT'])
+def update_orders(id):
     """ Updates a Order in the database fom the posted database """
     pet = Pet.find(id)
     if pet:
@@ -156,19 +158,22 @@ def update_pets(id):
 ######################################################################
 # DELETE A ORDER
 ######################################################################
-@app.route("/orders/<int:id>", methods=["DELETE"])
-def delete_pets(id):
+
+@app.route('/orders/<int:id>', methods=['DELETE'])
+def delete_orders(id):
     """ Removes a Order from the database that matches the id """
-    pet = Pet.find(id)
-    if pet:
-        pet.delete()
-    return make_response(", HTTP_204_NO_CONTENT)
+    order = Order.find(id)
+    if order:
+        orders.delete()
+    return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # dummy data for testing
-    Pet(0, "fido", "dog").save()
-    Pet(0, "kitty", "cat").save()
-    app.run(host="0.0.0.0", port=int(PORT), debug=DEBUG)
+
+    Order("1","01",10,"11:01").save()
+    Order("2","02",20,"17:11").save()
+
+    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
