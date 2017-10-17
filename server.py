@@ -33,8 +33,8 @@ from flask import Flask, Response, jsonify, request, json, url_for, make_respons
 from models import Pet, DataValidationError
 
 # Pull options from environment
-DEBUG = (os.getenv('DEBUG', 'False') == 'True')
-PORT = os.getenv('PORT', '5000')
+DEBUG = (os.getenv("DEBUG", "False") == "True")
+PORT = os.getenv("PORT", "5000")
 
 # Create Flask application
 app = Flask(__name__)
@@ -58,63 +58,63 @@ def request_validation_error(error):
 @app.errorhandler(400)
 def bad_request(error):
     """ Handles requests that have bad or malformed data """
-    return jsonify(status=400, error='Bad Request', message=error.message), 400
+    return jsonify(status=400, error="Bad Request", message=error.message), 400
 
 @app.errorhandler(404)
 def not_found(error):
     """ Handles Pets that cannot be found """
-    return jsonify(status=404, error='Not Found', message=error.message), 404
+    return jsonify(status=404, error="Not Found", message=error.message), 404
 
 @app.errorhandler(405)
 def method_not_supported(error):
     """ Handles bad method calls """
-    return jsonify(status=405, error='Method not Allowed',
-                   message='Your request method is not supported.' \
-                   ' Check your HTTP method and try again.'), 405
+    return jsonify(status=405, error="Method not Allowed",
+                   message="Your request method is not supported." \
+                   " Check your HTTP method and try again."), 405
 
 @app.errorhandler(500)
 def internal_server_error(error):
     """ Handles catostrophic errors """
-    return jsonify(status=500, error='Internal Server Error', message=error.message), 500
+    return jsonify(status=500, error="Internal Server Error", message=error.message), 500
 
 
 ######################################################################
 # GET INDEX
 ######################################################################
-@app.route('/')
+@app.route("/")
 def index():
     """ Return something useful by default """
-    return jsonify(name='Pet Demo REST API Service',
-                   version='1.0',
-                   url=url_for('list_pets', _external=True)), HTTP_200_OK
+    return jsonify(name="Order Demo REST API Service",
+                   version="1.0",
+                   url=url_for("list_orders", _external=True)), HTTP_200_OK
 
 ######################################################################
 # LIST ALL ORDERS
 ######################################################################
-@app.route('/orders', methods=['GET'])
-def list_pets():
+@app.route("/orders", methods=["GET"])
+def list_orders():
     """ Retrieves a list of orders from the database """
     results = []
-    category = request.args.get('category')
-    if category:
-        results = Pet.find_by_category(category)
+    customer_id = request.args.get("customer_id")
+    if customer_id:
+        results = Order.find_by_customer_id(customer_id)
     else:
-        results = Pet.all()
+        results = Order.all()
 
-    return jsonify([pet.serialize() for pet in results]), HTTP_200_OK
+    return jsonify([order.serialize() for order in results]), HTTP_200_OK
 
 ######################################################################
 # RETRIEVE A ORDER
 ######################################################################
-@app.route('/orders/<int:id>', methods=['GET'])
-def get_pets(id):
+@app.route("/orders/<int:id>", methods=["GET"])
+def get_orders(id):
     """ Retrieves a Order with a specific id """
-    pet = Pet.find(id)
-    if pet:
-        message = pet.serialize()
+    order = Order.find(id)
+    if order:
+        message = order.serialize()
         return_code = HTTP_200_OK
     else:
-        message = {'error' : 'Pet with id: %s was not found' % str(id)}
+        message = {"error" : "Order with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
     return jsonify(message), return_code
@@ -122,7 +122,7 @@ def get_pets(id):
 ######################################################################
 # ADD A NEW ORDER
 ######################################################################
-@app.route('/orders', methods=['POST'])
+@app.route("/orders", methods=["POST"])
 def create_pets():
     """ Creates a Order in the datbase from the posted database """
     payload = request.get_json()
@@ -131,13 +131,13 @@ def create_pets():
     pet.save()
     message = pet.serialize()
     response = make_response(jsonify(message), HTTP_201_CREATED)
-    response.headers['Location'] = url_for('get_pets', id=pet.id, _external=True)
+    response.headers["Location"] = url_for("get_pets", id=pet.id, _external=True)
     return response
 
 ######################################################################
 # UPDATE AN EXISTING ORDER
 ######################################################################
-@app.route('/orders/<int:id>', methods=['PUT'])
+@app.route("/orders/<int:id>", methods=["PUT"])
 def update_pets(id):
     """ Updates a Order in the database fom the posted database """
     pet = Pet.find(id)
@@ -148,7 +148,7 @@ def update_pets(id):
         message = pet.serialize()
         return_code = HTTP_200_OK
     else:
-        message = {'error' : 'Pet with id: %s was not found' % str(id)}
+        message = {"error" : "Pet with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
     return jsonify(message), return_code
@@ -156,19 +156,19 @@ def update_pets(id):
 ######################################################################
 # DELETE A ORDER
 ######################################################################
-@app.route('/orders/<int:id>', methods=['DELETE'])
+@app.route("/orders/<int:id>", methods=["DELETE"])
 def delete_pets(id):
     """ Removes a Order from the database that matches the id """
     pet = Pet.find(id)
     if pet:
         pet.delete()
-    return make_response('', HTTP_204_NO_CONTENT)
+    return make_response(", HTTP_204_NO_CONTENT)
 
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # dummy data for testing
-    Pet(0, 'fido', 'dog').save()
-    Pet(0, 'kitty', 'cat').save()
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
+    Pet(0, "fido", "dog").save()
+    Pet(0, "kitty", "cat").save()
+    app.run(host="0.0.0.0", port=int(PORT), debug=DEBUG)
