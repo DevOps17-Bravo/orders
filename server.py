@@ -30,7 +30,7 @@ DELETE /pets{id} - Removes a Pet from the database that matches the id
 import os
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
-from models import Pet, DataValidationError
+from models import Order, DataValidationError
 
 # Pull options from environment
 DEBUG = (os.getenv("DEBUG", "False") == "True")
