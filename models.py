@@ -48,22 +48,23 @@ class Order(object):
         """
         Saves an Order to the data store
         """
-        if self.id == 0:
-            self.id = self.__next_index()
+        if self.order_id == 0:
+            self.order_id = self.__next_index()
             Pet.data.append(self)
         else:
-            for i in range(len(Pet.data)):
-                if Pet.data[i].id == self.id:
+            for i in range(len(Order.data)):
+                if Order.data[i].order_id == self.order_id:
                     Pet.data[i] = self
                     break
 
     def delete(self):
         """ Removes an Order from the data store """
-        Pet.data.remove(self)
+        Order.data.remove(self)
 
     def serialize(self):
         """ Serializes an Order into a dictionary """
-        return {"id": self.id, "name": self.name, "category": self.category}
+        return {"order_id": self.order_id, "customer_id": self.customer_id, "order_total": self.order_total,
+                "order_time": self.order_time}
 
     def deserialize(self, data):
         """
@@ -73,14 +74,15 @@ class Order(object):
             data (dict): A dictionary containing the Order data
         """
         if not isinstance(data, dict):
-            raise DataValidationError('Invalid pet: body of request contained bad or no data')
-        if data.has_key('id'):
-            self.id = data['id']
+            raise DataValidationError('Invalid order: body of request contained bad or no data')
+        if data.has_key("order_id"):
+            self.order_id = data["order_id"]
         try:
-            self.name = data['name']
-            self.category = data['category']
+            self.customer_id= data["customer_id"]
+            self.order_total = data["order_total"]
+            self.order_time = data["order_time"]
         except KeyError as err:
-            raise DataValidationError('Invalid pet: missing ' + err.args[0])
+            raise DataValidationError("Invalid order: missing " + err.args[0])
         return
 
     @staticmethod
