@@ -170,7 +170,7 @@ def delete_orders(id):
 if __name__ == "__main__":
     # dummy data for testing
 
-    Order("1","01",10,"11:01").save()
-    Order("2","02",20,"17:11").save()
+    Order(0,"01",10,"11:01").save()
+    Order(0,"02",20,"17:11").save()
 
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
