@@ -36,47 +36,47 @@ class TestPetServer(unittest.TestCase):
         self.assertTrue ('Pet Demo REST API Service' in resp.data)
 
     def test_get_pet_list(self):
-        resp = self.app.get('/pets')
+        resp = self.app.get("/pets")
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         self.assertTrue( len(resp.data) > 0 )
 
-    def test_get_pet(self):
-        resp = self.app.get('/pets/2')
+    def test_get_order(self):
+        resp = self.app.get("/orders/1")
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         data = json.loads(resp.data)
-        self.assertEqual (data['name'], 'kitty')
+        self.assertEqual (data["order_id"], "5")
 
-    def test_create_pet(self):
-        # save the current number of pets for later comparrison
-        pet_count = self.get_pet_count()
+    def test_create_order(self):
+        # save the current number of orders for later comparison
+        order_count = self.get_order_count()
         # add a new pet
-        new_pet = {'name': 'sammy', 'category': 'snake'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data, content_type='application/json')
+        new_order = {"order_id": "1", "customer_id": "2", "order_total": 3, "order_time": "4"}
+        data = json.dumps(new_order)
+        resp = self.app.post("/orders", data=data, content_type="application/json")
         self.assertTrue( resp.status_code == HTTP_201_CREATED )
         # Make sure location header is set
-        location = resp.headers.get('Location', None)
+        location = resp.headers.get("Location", None)
         self.assertTrue( location != None)
         # Check the data is correct
         new_json = json.loads(resp.data)
-        self.assertEqual (new_json['name'], 'sammy')
+        self.assertEqual (new_json["order_id"], "1")
         # check that count has gone up and includes sammy
-        resp = self.app.get('/pets')
+        resp = self.app.get("/orders")
         # print 'resp_data(2): ' + resp.data
         data = json.loads(resp.data)
         self.assertEqual( resp.status_code, HTTP_200_OK )
-        self.assertEqual( len(data), pet_count + 1 )
+        self.assertEqual( len(data), order_count + 1 )
         self.assertIn( new_json, data )
 
-    def test_update_pet(self):
-        new_kitty = {'name': 'kitty', 'category': 'tabby'}
-        data = json.dumps(new_kitty)
-        resp = self.app.put('/pets/2', data=data, content_type='application/json')
+    def test_update_order(self):
+        new_order = {"order_id": "1", "customer_id": "2", "order_total": 5, "order_time": "4"}
+        data = json.dumps(new_order)
+        resp = self.app.put("/orders/1a", data=data, content_type="application/json")
         self.assertEqual( resp.status_code, HTTP_200_OK )
         new_json = json.loads(resp.data)
-        self.assertEqual (new_json['category'], 'tabby')
+        self.assertEqual (new_json["order_total"], 5)
 
     def test_update_pet_with_no_name(self):
         new_pet = {'category': 'dog'}
