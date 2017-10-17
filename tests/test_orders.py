@@ -16,7 +16,7 @@ class TestOrders(unittest.TestCase):
 
     def test_create_an_order(self):
         # Create an order and assert that it exists
-        order = Order(123, "321", 999, "98765")
+        order = Order(0, "321", 999, "98765")
         self.assertTrue( order != None )
         self.assertEqual( order.order_id, 123 )
         self.assertEqual( order.customer_id, "321" )
@@ -27,7 +27,7 @@ class TestOrders(unittest.TestCase):
         # Create an order and add it to the database
         orders = Order.all()
         self.assertEqual( orders, [] )
-        order = Order(123, "321", 999, "98765" )
+        order = Order(0, "321", 999, "98765" )
         self.assertTrue( order != None )
         self.assertEqual( order.order_id, 123 )
         order.save()
@@ -37,7 +37,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( len(orders), 1)
 
     def test_update_an_order(self):
-        order = Order(12345, "54321", 9999, "98765" )
+        order = Order(0, "54321", 9999, "98765" )
         order.save()
         self.assertEqual( order.customer_id, "54321")
         # Change order_total an save it
@@ -51,7 +51,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( orders[0].order_total, 100 )
 
     def test_delete_an_order(self):
-        order = Order(1, "", 0, "")
+        order = Order(0, "", 0, "")
         order.save()
         self.assertEqual( len(Order.all()), 1 )
         # delete the order and make sure it isn't in the database
@@ -59,7 +59,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( len(Order.all()), 0 )
 
     def test_serialize_an_order(self):
-        order = Order(123, "321", 999, "98765" )
+        order = Order(0, "321", 999, "98765" )
         data = order.serialize()
         self.assertNotEqual( data, None )
         self.assertIn( "order_id", data )
@@ -72,7 +72,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( data["order_time"], "98765" )
 
     def test_deserialize_an_order(self):
-        data = {"order_id": 123, "customer_id": "321", "order_total": 999, "order_time": "98765" }
+        data = {"order_id": 0, "customer_id": "321", "order_total": 999, "order_time": "98765" }
         order = Order()
         order.deserialize(data)
         self.assertNotEqual( order, None )
@@ -84,7 +84,7 @@ class TestOrders(unittest.TestCase):
 
     def test_deserialize_an_order_with_no_customer_id(self):
         order = Order()
-        data = {"order_id": 123, "order_total": 999, "order_time": "98765"}
+        data = {"order_id": 0, "order_total": 999, "order_time": "98765"}
         self.assertRaises(DataValidationError, order.deserialize, data )
 
     def test_deserialize_an_order_with_no_data(self):
@@ -96,8 +96,8 @@ class TestOrders(unittest.TestCase):
         self.assertRaises( DataValidationError, order.deserialize, "data" )
 
     def test_find_order(self):
-        Order(1, "1", 0, "").save()
-        Order(2, "2", 0, "").save()
+        Order(0, "1", 0, "").save()
+        Order(0, "2", 0, "").save()
         order = Order.find(2)
         self.assertIsNot( order, None)
         self.assertEqual( order.order_id, 2 )
@@ -109,7 +109,7 @@ class TestOrders(unittest.TestCase):
         self.assertIs( order, None)
 
     def test_order_not_found(self):
-        Order(1, "", 1, "").save()
+        Order(0, "", 1, "").save()
         order = Order.find(2)
         self.assertIs( order, None)
 
