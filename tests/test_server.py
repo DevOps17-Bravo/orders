@@ -106,26 +106,26 @@ class TestPetServer(unittest.TestCase):
         resp = self.app.post('/pets', data=data)
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
-    def test_get_nonexisting_pet(self):
-        resp = self.app.get('/pets/5')
+    def test_get_nonexisting_order(self):
+        resp = self.app.get("/orders/5")
         self.assertEqual( resp.status_code, HTTP_404_NOT_FOUND )
 
-    def test_query_pet_list(self):
-        resp = self.app.get('/pets', query_string='category=dog')
+    def test_query_order_list(self):
+        resp = self.app.get("/orders", query_string="customer_id=321")
         self.assertEqual( resp.status_code, HTTP_200_OK )
         self.assertTrue( len(resp.data) > 0 )
         data = json.loads(resp.data)
         query_item = data[0]
-        self.assertEqual(query_item['category'], 'dog')
+        self.assertEqual(query_item["customer_id"], "321")
 
 
 ######################################################################
 # Utility functions
 ######################################################################
 
-    def get_pet_count(self):
+    def get_order_count(self):
         # save the current number of pets
-        resp = self.app.get('/pets')
+        resp = self.app.get("/orders")
         self.assertEqual( resp.status_code, HTTP_200_OK )
         # print 'resp_data: ' + resp.data
         data = json.loads(resp.data)
