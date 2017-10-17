@@ -13,18 +13,18 @@
 # limitations under the License.
 
 """
-Pet Shop Demo
+Order Shop Demo
 
-This is an example of a pet shop service written with Python Flask
+This is an example of Order service written with Python Flask
 It demonstraits how a RESTful service should be implemented.
 
 Paths
 -----
-GET  /pets - Retrieves a list of pets from the database
-GET  /pets{id} - Retrirves a Pet with a specific id
-POST /pets - Creates a Pet in the datbase from the posted database
-PUT  /pets/{id} - Updates a Pet in the database fom the posted database
-DELETE /pets{id} - Removes a Pet from the database that matches the id
+GET  /orders - Retrieves a list of orders from the database
+GET  /orders{id} - Retrirves an Order with a specific id
+POST /orders - Creates an Order in the datbase from the posted database
+PUT  /orders/{id} - Updates a Order in the database fom the posted database
+DELETE /orders{id} - Removes a Order from the database that matches the id
 """
 
 import os
@@ -62,7 +62,7 @@ def bad_request(error):
 
 @app.errorhandler(404)
 def not_found(error):
-    """ Handles Pets that cannot be found """
+    """ Handles Orders that cannot be found """
     return jsonify(status=404, error="Not Found", message=error.message), 404
 
 @app.errorhandler(405)
@@ -142,15 +142,15 @@ def create_orders():
 @app.route('/orders/<int:id>', methods=['PUT'])
 def update_orders(id):
     """ Updates a Order in the database fom the posted database """
-    pet = Pet.find(id)
-    if pet:
+    order = Order.find(id)
+    if order:
         payload = request.get_json()
-        pet.deserialize(payload)
-        pet.save()
-        message = pet.serialize()
+        order.deserialize(payload)
+        order.save()
+        message = order.serialize()
         return_code = HTTP_200_OK
     else:
-        message = {"error" : "Pet with id: %s was not found" % str(id)}
+        message = {"error" : "Order with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
     return jsonify(message), return_code
@@ -173,7 +173,7 @@ def delete_orders(id):
 if __name__ == "__main__":
     # dummy data for testing
 
-    Order("1","01",10,"11:01").save()
-    Order("2","02",20,"17:11").save()
+    Order(0,"01",10,"11:01").save()
+    Order(0,"02",20,"17:11").save()
 
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
