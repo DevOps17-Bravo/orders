@@ -24,8 +24,8 @@ class TestOrderServer(unittest.TestCase):
     def setUp(self):
         server.app.debug = True
         self.app = server.app.test_client()
-        server.Order("1", "2", 3, "4").save()
-        server.Order("5", "6", 7, "8").save()
+        server.Order(0, "2", 3, "4").save()
+        server.Order(0, "6", 7, "8").save()
 
     def tearDown(self):
         server.Order.remove_all()
@@ -47,13 +47,13 @@ class TestOrderServer(unittest.TestCase):
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         data = json.loads(resp.data)
-        self.assertEqual (data["order_id"], "5")
+        self.assertEqual (data["order_id"], 1)
 
     def test_create_order(self):
         # save the current number of orders for later comparison
         order_count = self.get_order_count()
         # add a new pet
-        new_order = {"order_id": "1", "customer_id": "2", "order_total": 3, "order_time": "4"}
+        new_order = {"order_id": 1, "customer_id": "2", "order_total": 3, "order_time": "4"}
         data = json.dumps(new_order)
         resp = self.app.post("/orders", data=data, content_type="application/json")
         self.assertTrue( resp.status_code == HTTP_201_CREATED )
@@ -62,7 +62,7 @@ class TestOrderServer(unittest.TestCase):
         self.assertTrue( location != None)
         # Check the data is correct
         new_json = json.loads(resp.data)
-        self.assertEqual (new_json["order_id"], "1")
+        self.assertEqual (new_json["order_id"], 1)
         # check that count has gone up and includes sammy
         resp = self.app.get("/orders")
         # print 'resp_data(2): ' + resp.data
@@ -72,12 +72,12 @@ class TestOrderServer(unittest.TestCase):
         self.assertIn( new_json, data )
 
     def test_update_order(self):
-        new_order = {"order_id": "1", "customer_id": "2", "order_total": 5, "order_time": "4"}
+        new_order = {"order_id": 1, "customer_id": "2", "order_total": 5, "order_time": "4"}
         data = json.dumps(new_order)
-        resp = self.app.put("/orders/1a", data=data, content_type="application/json")
+        resp = self.app.put("/orders/1", data=data, content_type="application/json")
         self.assertEqual( resp.status_code, HTTP_200_OK )
         new_json = json.loads(resp.data)
-        self.assertEqual (new_json["order_total"], 5)
+        self.assertEqual (new_json["order_total"], 1)
 
     def test_update_order_with_no_customer_id(self):
         new_order = {"order_total" : 3, "order_time": "4"}
@@ -89,32 +89,32 @@ class TestOrderServer(unittest.TestCase):
         # save the current number of pets for later comparrison
         order_count = self.get_order_count()
         # delete a order
-        resp = self.app.delete('/orders/2', content_type='application/json')
+        resp = self.app.delete('/orders/1', content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_204_NO_CONTENT )
         self.assertEqual( len(resp.data), 0 )
         new_count = self.get_order_count()
         self.assertEqual( new_count, order_count - 1)
 
     def test_create_order_with_no_customer_id(self):
-        new_order = {"order_id": "10", "order_total": 100, "order_time": "10112017"}
+        new_order = {"order_id": 10, "order_total": 100, "order_time": "10112017"}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_create_order_with_no_order_total(self):
-        new_order = {"order_id": "10", "customer_id": "01", "order_time": "10112017"}
+        new_order = {"order_id": 10, "customer_id": "01", "order_time": "10112017"}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_create_order_with_no_order_time(self):
-        new_order = {"order_id": "10", "customer_id": "01","order_total": 100}
+        new_order = {"order_id": 10, "customer_id": "01","order_total": 100}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_get_nonexisting_order(self):
-        resp = self.app.get("/orders/5")
+        resp = self.app.get("/orders/1")
         self.assertEqual( resp.status_code, HTTP_404_NOT_FOUND )
 
     def test_query_order_list(self):
