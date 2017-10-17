@@ -123,15 +123,15 @@ def get_pets(id):
 # ADD A NEW ORDER
 ######################################################################
 @app.route('/orders', methods=['POST'])
-def create_pets():
+def create_orders():
     """ Creates a Order in the datbase from the posted database """
     payload = request.get_json()
-    pet = Pet()
-    pet.deserialize(payload)
-    pet.save()
-    message = pet.serialize()
+    order = Order()
+    order.deserialize(payload)
+    order.save()
+    message = order.serialize()
     response = make_response(jsonify(message), HTTP_201_CREATED)
-    response.headers['Location'] = url_for('get_pets', id=pet.id, _external=True)
+    response.headers['Location'] = url_for('get_orders', id=order.order_id, _external=True)
     return response
 
 ######################################################################

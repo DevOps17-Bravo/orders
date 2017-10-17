@@ -86,46 +86,37 @@ class Order(object):
     @staticmethod
     def __next_index():
         """ Generates the next index in a continual sequence """
-        with Pet.lock:
-            Pet.index += 1
-        return Pet.index
+        with Order.lock:
+            Order.index += 1
+        return Order.index
 
     @staticmethod
     def all():
         """ Returns all of the Orders in the database """
-        return [pet for pet in Pet.data]
+        return [order for order in Order.data]
 
     @staticmethod
     def remove_all():
         """ Removes all of the Orders from the database """
-        del Pet.data[:]
-        Pet.index = 0
-        return Pet.data
+        del Order.data[:]
+        Order.index = 0
+        return Order.data
 
     @staticmethod
-    def find(pet_id):
+    def find(order_id):
         """ Finds an Order by it's ID """
-        if not Pet.data:
+        if not Order.data:
             return None
-        pets = [pet for pet in Pet.data if pet.id == pet_id]
-        if pets:
-            return pets[0]
+        orders = [order for order in Order.data if order.order_id == order_id]
+        if orders:
+            return orders[0]
         return None
 
     @staticmethod
-    def find_by_category(category):
-        """ Returns all of the Orders in a category
-
-        Args:
-            category (string): the category of the Orders you want to match
-        """
-        return [pet for pet in Pet.data if pet.category == category]
-
-    @staticmethod
-    def find_by_name(name):
+    def find_by_customer_id(customer_id):
         """ Returns all Orders with the given name
 
         Args:
             name (string): the name of the Orders you want to match
         """
-        return [pet for pet in Pet.data if pet.name == name]
+        return [order for order in Order.data if order.customer_id == customer_id]
