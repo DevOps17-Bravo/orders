@@ -19,24 +19,25 @@ HTTP_409_CONFLICT = 409
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
-class TestPetServer(unittest.TestCase):
+class TestOrderServer(unittest.TestCase):
 
     def setUp(self):
         server.app.debug = True
         self.app = server.app.test_client()
-        server.Pet(0,'fido','dog').save()
-        server.Pet(0,'kitty','cat').save()
+        server.Order("1", "2", 3, "4").save()
+        server.Order("5", "6", 7, "8").save()
 
     def tearDown(self):
-        server.Pet.remove_all()
+        server.Order.remove_all()
 
     def test_index(self):
         resp = self.app.get('/')
         self.assertEqual( resp.status_code, HTTP_200_OK )
-        self.assertTrue ('Pet Demo REST API Service' in resp.data)
+        self.assertTrue ('Order Demo REST API Service' in resp.data)
 
-    def test_get_pet_list(self):
-        resp = self.app.get("/pets")
+
+    def test_get_order_list(self):
+        resp = self.app.get('/orders')
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         self.assertTrue( len(resp.data) > 0 )
@@ -78,32 +79,38 @@ class TestPetServer(unittest.TestCase):
         new_json = json.loads(resp.data)
         self.assertEqual (new_json["order_total"], 5)
 
-    def test_update_pet_with_no_name(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.put('/pets/2', data=data, content_type='application/json')
+    def test_update_order_with_no_customer_id(self):
+        new_order = {"order_total" : 3, "order_time": "4"}
+        data = json.dumps(new_order)
+        resp = self.app.put('/orders/1', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_delete_order(self):
         # save the current number of pets for later comparrison
         order_count = self.get_order_count()
-        # delete a pet
+        # delete a order
         resp = self.app.delete('/orders/2', content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_204_NO_CONTENT )
         self.assertEqual( len(resp.data), 0 )
         new_count = self.get_order_count()
         self.assertEqual( new_count, order_count - 1)
 
-    def test_create_pet_with_no_name(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data, content_type='application/json')
+    def test_create_order_with_no_customer_id(self):
+        new_order = {"order_id": "10", "order_total": 100, "order_time": "10112017"}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
-    def test_create_pet_with_no_content_type(self):
-        new_pet = {'category': 'dog'}
-        data = json.dumps(new_pet)
-        resp = self.app.post('/pets', data=data)
+    def test_create_order_with_no_order_total(self):
+        new_order = {"order_id": "10", "customer_id": "01", "order_time": "10112017"}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
+        self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
+
+    def test_create_order_with_no_order_time(self):
+        new_order = {"order_id": "10", "customer_id": "01","order_total": 100}
+        data = json.dumps(new_order)
+        resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_400_BAD_REQUEST )
 
     def test_get_nonexisting_pet(self):
