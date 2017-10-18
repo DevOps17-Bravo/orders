@@ -168,6 +168,24 @@ def delete_orders(id):
     return make_response('', HTTP_204_NO_CONTENT)
 
 ######################################################################
+# CANCEL AN ORDER
+######################################################################
+
+@app.route('/orders/<int:id>/cancel', methods=['PUT'])
+def cancel_an_order(id):
+    order = Order.find(id)
+    if order:
+        order.order_status = 0
+        order.save()
+        message = order.serialize()
+        return_code = HTTP_200_OK
+    else:
+        message = {"error" : "Order with id: %s was not found" % str(id)}
+        return_code = HTTP_404_NOT_FOUND
+
+    return jsonify(message), return_code
+
+######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":

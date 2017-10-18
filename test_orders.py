@@ -72,7 +72,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( data["order_time"], "98765" )
 
     def test_deserialize_an_order(self):
-        data = {"order_id": 0, "customer_id": "321", "order_total": 999, "order_time": "98765" }
+        data = {"order_id": 0, "customer_id": "321", "order_total": 999, "order_time": "98765", "order_status": 1}
         order = Order()
         order.deserialize(data)
         self.assertNotEqual( order, None )
@@ -84,7 +84,7 @@ class TestOrders(unittest.TestCase):
 
     def test_deserialize_an_order_with_no_customer_id(self):
         order = Order()
-        data = {"order_id": 0, "order_total": 999, "order_time": "98765"}
+        data = {"order_id": 0, "order_total": 999, "order_time": "98765", "order_status": 1}
         self.assertRaises(DataValidationError, order.deserialize, data )
 
     def test_deserialize_an_order_with_no_data(self):
