@@ -3,44 +3,44 @@ A collection of order items created from products
 
 ##1. Instructions for using the environment 
 
-**Download from github:**
+-**Download from github:**
 git clone https://github.com/DevOps17-Bravo/orders.git
 
-**Enter the folder:**
+-**Enter the folder:**
 cd orders
 
-**to start vm:**
+-**to start vm:**
 vagrant up
 
-**to update vagrantfile:**
+-**to update vagrantfile:**
 vagrant provision
 
-**connect to the environment:**
+-**connect to the environment:**
 vagrant ssh
 
-**get into folder:** 
+-**get into folder:** 
 cd /vagrant
 
-**run server:**
+-**run server:**
 python server.py
 
-**exit environment:**
+-**exit environment:**
 exit
 
-**shut down vm:**
+-**shut down vm:**
 vagrant halt
 
-**how to run coverage#**
+-**how to run coverage**
 
-coverage run --omit "venv/*" test_server.py
+ coverage run --omit "venv/*" test_server.py
 
-coverage report -m --include= server.py
+ coverage report -m --include= server.py
 
-result coverage: 91%
+ result coverage: 91%
 
-coverage run --omit "venv/*" test_orders.py
+ coverage run --omit "venv/*" test_orders.py
 
-coverage report -m --include= models.py
+ coverage report -m --include= models.py
 
-result coverage: 98%
+ result coverage: 98%
 
