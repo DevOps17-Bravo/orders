@@ -38,3 +38,18 @@ exit
 **shut down vm**
 
 vagrant halt
+
+**how to run coverage#**
+
+coverage run --omit "venv/*" test_server.py
+
+coverage report -m --include= server.py
+
+result coverage: 91%
+
+coverage run --omit "venv/*" test_orders.py
+
+coverage report -m --include= models.py
+
+result coverage: 98%
+
