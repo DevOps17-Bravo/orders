@@ -30,7 +30,7 @@ exit
 -**shut down vm:**
 vagrant halt
 
--**how to run coverage**
+-**how to run coverage:**
 
  coverage run --omit "venv/*" test_server.py
 
