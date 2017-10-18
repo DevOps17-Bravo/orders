@@ -31,6 +31,7 @@ exit
 vagrant halt
 
 **how to run coverage#**
+
 coverage run --omit "venv/*" test_server.py
 
 coverage report -m --include= server.py
