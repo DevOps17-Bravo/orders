@@ -4,8 +4,6 @@
 
 **So that** ...
 
-
-
 **Assumption**:
 
 - ...
@@ -15,8 +13,6 @@
 **Acceptance Criteria**:
 ```
 Given that ...
-
 When ...
-
 Then ...
 ```
