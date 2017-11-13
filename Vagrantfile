@@ -86,4 +86,33 @@ Vagrant.configure(2) do |config|
       args: "--restart=always -d --name redis -h redis -p 6379:6379 -v /var/lib/redis/data:/data"
   end
 
+  ######################################################################
+  # Add Apache2 Server
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+  apt-get update
+  apt-get install -y apache2
+  rm -fr /var/www/html
+  ln -s /vagrant/html /var/www/html
+  SHELL
+
+
+  ######################################################################
+  # Add Cloud Foundry Tool
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    # add cloud foundry tool 
+    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+    echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+    apt-get update
+    apt-get install -y git cf-cli python-pip python-dev build-essential mysql-client
+    pip install --upgrade pip
+    apt-get -y autoremove
+    # Install app dependencies
+    cd /vagrant
+    sudo pip install -r requirements.txt
+    # Make vi look nice
+    # sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+  SHELL
+
 end
