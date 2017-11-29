@@ -42,6 +42,16 @@ Vagrant.configure(2) do |config|
     config.vm.provision "file", source: "~/.gitconfig", destination: "~/.gitconfig"
   end
 
+  # Copy your ssh keys file so that your git credentials are correct
+  if File.exists?(File.expand_path("~/.ssh/id_rsa"))
+    config.vm.provision "file", source: "~/.ssh/id_rsa", destination: "~/.ssh/id_rsa"
+  end
+
+  # Copy nosetests config file so that you can just run `nosetests` without having to specify options
+  if File.exists?(File.expand_path("/vagrant/.noserc"))
+    config.vm.provision "file", source: "/vagrant/.noserc", destination: "~/.noserc"
+  end
+
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.
@@ -143,6 +153,28 @@ Vagrant.configure(2) do |config|
     sudo pip install -r requirements.txt
     # Make vi look nice
     # sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+  SHELL
+
+  ######################################################################
+  # Add Bluemix CLI
+  ######################################################################
+  config.vm.provision "shell", inline: <<-SHELL
+    # install bluemix cli
+    wget -q -O - https://packages.cloudfoundry.org/debian/cli.cloudfoundry.org.key | sudo apt-key add -
+    echo "deb http://packages.cloudfoundry.org/debian stable main" | sudo tee /etc/apt/sources.list.d/cloudfoundry-cli.list
+    apt-get update
+    apt-get install -y git python-pip python-dev build-essential
+    pip install --upgrade pip
+    apt-get -y autoremove
+    sudo -H -u ubuntu echo "colorscheme desert" > ~/.vimrc
+    echo " Installing Bluemix CLI"
+    wget https://clis.ng.bluemix.net/download/bluemix-cli/latest/linux64
+    tar -zxvf linux64
+    cd Bluemix_CLI/
+    ./install_bluemix_cli
+    cd ..
+    rm -fr Bluemix_CLI/
+    rm linux64
   SHELL
 
 end
