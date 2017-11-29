@@ -62,4 +62,16 @@ vagrant halt
 
  result coverage: 98%
  ```
-
+ 
+ -**how to run the BDD and TDD tests:**
+ ```
+ cd /vagrant
+ 
+ #BDD
+ python run.py &
+ behave
+ 
+ #TDD
+ nosetests
+ ```
+ 
