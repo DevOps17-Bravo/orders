@@ -66,12 +66,12 @@ vagrant halt
  -**how to run the BDD and TDD tests:**
  ```
  cd /vagrant
- 
- #BDD
+
+ # BDD
  python run.py &
  behave
- 
- #TDD
+
+ # TDD
  nosetests
  ```
  
