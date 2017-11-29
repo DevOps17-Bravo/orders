@@ -11,6 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 Models for Order Demo Service
 
@@ -21,7 +22,14 @@ Models
 Order - An Order used in the E-Commerce
 
 """
-import threading
+import os
+import json
+import logging
+import pickle
+from cerberus import Validator
+from redis import Redis
+from redis.exceptions import ConnectionError
+from app.custom_exceptions import DataValidationError
 
 class DataValidationError(Exception):
     """ Used for an data validation errors when deserializing """
@@ -29,13 +37,18 @@ class DataValidationError(Exception):
 
 class Order(object):
     """
-    Class that represents an Order
-
-    This version uses an in-memory collection of orders for testing
+    Pet interface to database
     """
-    lock = threading.Lock()
-    data = []
-    index = 0
+    logger = logging.getLogger(__name__)
+    redis = None
+    schema = {
+        'order_id': {'type': 'integer'},
+        'customer_id': {'type': 'string', 'required': True},
+        'order_total': {'type': 'integer', 'required': True},
+        'order_time': {'type': 'string', 'required': True},
+        'order_status': {'type': 'integer', 'required': True}
+        }
+    __validator = Validator(schema)
 
     def __init__(self, order_id=0, customer_id='', order_total=0, order_time='', order_status=1):
         """ Initialize an Order """
@@ -47,20 +60,16 @@ class Order(object):
 
     def save(self):
         """
-        Saves an Order to the data store
+        Saves an Order in the database
         """
         if self.order_id == 0:
-            self.order_id = self.__next_index()
+            self.order_id = Order.__next_index()
             Order.data.append(self)
-        else:
-            for i in range(len(Order.data)):
-                if Order.data[i].order_id == self.order_id:
-                    Order.data[i] = self
-                    break
+        Order.redis.set(self.order_id, pickle.dumps(self.serialize()))
 
     def delete(self):
         """ Removes an Order from the data store """
-        Order.data.remove(self)
+        Order.redis.delete(self.order_id)
 
     def serialize(self):
         """ Serializes an Order into a dictionary """
@@ -74,37 +83,35 @@ class Order(object):
         Args:
             data (dict): A dictionary containing the Order data
         """
-        if not isinstance(data, dict):
-            raise DataValidationError('Invalid order: body of request contained bad or no data')
-        if data.has_key("order_id"):
-            self.order_id = data["order_id"]
-        try:
-            self.customer_id= data["customer_id"]
-            self.order_total = data["order_total"]
-            self.order_time = data["order_time"]
-            self.order_status = data["order_status"]
-        except KeyError as err:
-            raise DataValidationError("Invalid order: missing " + err.args[0])
-        return
+        if isinstance(data, dict) and Order.__validator.validate(data):
+            self.customer_id = data['customer_id']
+            self.order_total = data['order_total']
+            self.order_time = data['order_time']
+            self.order_status = data['order_status']
+        else:
+            raise DataValidationError('Invalid order data: ' + str(Order.__validator.errors))
+        return self
 
     @staticmethod
     def __next_index():
-        """ Generates the next index in a continual sequence """
-        with Order.lock:
-            Order.index += 1
-        return Order.index
+        """ Increments the index and returns it """
+        return Order.redis.incr('index')
 
     @staticmethod
     def all():
         """ Returns all of the Orders in the database """
-        return [order for order in Order.data]
+        results = []
+        for key in Order.redis.keys():
+            if key != 'index':  # filer out our id index
+                data = pickle.loads(Order.redis.get(key))
+                order = Order(data['order_id']).deserialize(data)
+                results.append(order)
+        return results
 
     @staticmethod
     def remove_all():
         """ Removes all of the Orders from the database """
-        del Order.data[:]
-        Order.index = 0
-        return Order.data
+        Pet.redis.flushall()
 
     @staticmethod
     def find(order_id):
@@ -116,6 +123,34 @@ class Order(object):
             return orders[0]
         return None
 
+        if Pet.redis.exists(pet_id):
+            data = pickle.loads(Pet.redis.get(pet_id))
+            pet = Pet(data['order_id']).deserialize(data)
+            return pet
+        return None
+
+    @staticmethod
+    def __find_by(attribute, value):
+        """ Generic Query that finds a key with a specific value """
+        # return [order for order in Order.__data if order.category == category]
+        Order.logger.info('Processing %s query for %s', attribute, value)
+        if isinstance(value, str):
+            search_criteria = value.lower() # make case insensitive
+        else:
+            search_criteria = value
+        results = []
+        for key in Order.redis.keys():
+            if key != 'index':  # filer out our id index
+                data = pickle.loads(Order.redis.get(key))
+                # perform case insensitive search on strings
+                if isinstance(data[attribute], str):
+                    test_value = data[attribute].lower()
+                else:
+                    test_value = data[attribute]
+                if test_value == search_criteria:
+                    results.append(Order(data['order_id']).deserialize(data))
+        return results
+
     @staticmethod
     def find_by_customer_id(customer_id):
         """ Returns all Orders with the given name
@@ -123,4 +158,60 @@ class Order(object):
         Args:
             name (string): the name of the Orders you want to match
         """
-        return [order for order in Order.data if order.customer_id == customer_id]
+        return Order.__find_by('customer_id', customer_id)
+
+    @staticmethod
+    def connect_to_redis(hostname, port, password):
+        Order.logger.info("Testing Connection to: %s:%s", hostname, port)
+        Order.redis = Redis(host=hostname, port=port, password=password)
+        try:
+            Order.redis.ping()
+            Order.logger.info("Connection established")
+        except ConnectionError:
+            Order.logger.info("Connection Error from: %s:%s", hostname, port)
+            Order.redis = None
+        return Order.redis
+
+    @staticmethod
+    def init_db(redis=None):
+        """
+        Initialized Redis database connection
+        This method will work in the following conditions:
+          1) In Bluemix with Redis bound through VCAP_SERVICES
+          2) With Redis running on the local server as with Travis CI
+          3) With Redis --link in a Docker container called 'redis'
+          4) Passing in your own Redis connection object
+        Exception:
+        ----------
+          redis.ConnectionError - if ping() test fails
+        """
+        if redis:
+            Order.logger.info("Using client connection...")
+            Order.redis = redis
+            try:
+                Order.redis.ping()
+                Order.logger.info("Connection established")
+            except ConnectionError:
+                Order.logger.error("Client Connection Error!")
+                Order.redis = None
+                raise ConnectionError('Could not connect to the Redis Service')
+            return
+        # Get the credentials from the Bluemix environment
+        if 'VCAP_SERVICES' in os.environ:
+            Order.logger.info("Using VCAP_SERVICES...")
+            vcap_services = os.environ['VCAP_SERVICES']
+            services = json.loads(vcap_services)
+            creds = services['rediscloud'][0]['credentials']
+            Order.logger.info("Conecting to Redis on host %s port %s",
+                            creds['hostname'], creds['port'])
+            Order.connect_to_redis(creds['hostname'], creds['port'], creds['password'])
+        else:
+            Order.logger.info("VCAP_SERVICES not found, checking localhost for Redis")
+            Order.connect_to_redis('127.0.0.1', 6379, None)
+            if not Order.redis:
+                Order.logger.info("No Redis on localhost, looking for redis host")
+                Order.connect_to_redis('redis', 6379, None)
+        if not Order.redis:
+            # if you end up here, redis instance is down.
+            Pet.logger.fatal('*** FATAL ERROR: Could not connect to the Redis Service')
+            raise ConnectionError('Could not connect to the Redis Service')
