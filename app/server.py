@@ -20,17 +20,31 @@ It demonstraits how a RESTful service should be implemented.
 
 Paths
 -----
+GET / - Displays a UI for Selenium testing 
 GET  /orders - Retrieves a list of orders from the database
 GET  /orders{id} - Retrirves an Order with a specific id
 POST /orders - Creates an Order in the datbase from the posted database
 PUT  /orders/{id} - Updates a Order in the database fom the posted database
 DELETE /orders{id} - Removes a Order from the database that matches the id
 """
-
+import sys
 import os
 import logging
 from flask import Flask, Response, jsonify, request, json, url_for, make_response
-from models import Order, DataValidationError
+from app.models import Order
+from . import app
+
+# Error handlers reuire app to be initialized so we must import
+# then only after we have initialized the Flask app instance
+import error_handlers
+
+######################################################################
+# GET HEALTH CHECK
+######################################################################
+@app.route('/healthcheck')
+def healthcheck():
+    """ Let them know our heart is still beating """
+    return make_response(jsonify(status=200, message='Healthy'), status.HTTP_200_OK)
 
 # Pull options from environment
 DEBUG = (os.getenv("DEBUG", "False") == "True")
@@ -46,47 +60,17 @@ HTTP_204_NO_CONTENT = 204
 HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
 HTTP_409_CONFLICT = 409
-
-######################################################################
-# Error Handlers
-######################################################################
-@app.errorhandler(DataValidationError)
-def request_validation_error(error):
-    """ Handles all data validation issues from the model """
-    return bad_request(error)
-
-@app.errorhandler(400)
-def bad_request(error):
-    """ Handles requests that have bad or malformed data """
-    return jsonify(status=400, error="Bad Request", message=error.message), 400
-
-@app.errorhandler(404)
-def not_found(error):
-    """ Handles Orders that cannot be found """
-    return jsonify(status=404, error="Not Found", message=error.message), 404
-
-@app.errorhandler(405)
-def method_not_supported(error):
-    """ Handles bad method calls """
-    return jsonify(status=405, error="Method not Allowed",
-                   message="Your request method is not supported." \
-                   " Check your HTTP method and try again."), 405
-
-@app.errorhandler(500)
-def internal_server_error(error):
-    """ Handles catostrophic errors """
-    return jsonify(status=500, error="Internal Server Error", message=error.message), 500
-
-
 ######################################################################
 # GET INDEX
 ######################################################################
 @app.route("/")
 def index():
     """ Return something useful by default """
-    return jsonify(name="Order Demo REST API Service",
-                   version="1.0",
-                   url=url_for("list_orders", _external=True)), HTTP_200_OK
+    #return jsonify(name="Order Demo REST API Service",
+    #              version="1.0",
+    #               url=url_for("list_orders", _external=True)), HTTP_200_OK
+	return app.send_static_file('index.html')
+
 
 ######################################################################
 # LIST ALL ORDERS
@@ -101,7 +85,7 @@ def list_orders():
     else:
         results = Order.all()
 
-    return jsonify([order.serialize() for order in results]), HTTP_200_OK
+    return make_response(jsonify([order.serialize() for order in results]), HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A ORDER
@@ -117,7 +101,7 @@ def get_orders(id):
         message = {"error" : "Order with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
-    return jsonify(message), return_code
+    return make_response(jsonify(message), return_code)
 
 ######################################################################
 # ADD A NEW ORDER
@@ -133,7 +117,7 @@ def create_orders():
     message = order.serialize()
     response = make_response(jsonify(message), HTTP_201_CREATED)
     response.headers['Location'] = url_for('get_orders', id=order.order_id, _external=True)
-    return response
+    return make_response(response)
 
 ######################################################################
 # UPDATE AN EXISTING ORDER
@@ -153,7 +137,7 @@ def update_orders(id):
         message = {"error" : "Order with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
-    return jsonify(message), return_code
+    return make_response(jsonify(message), return_code)
 
 ######################################################################
 # DELETE A ORDER
@@ -183,15 +167,62 @@ def cancel_an_order(id):
         message = {"error" : "Order with id: %s was not found" % str(id)}
         return_code = HTTP_404_NOT_FOUND
 
-    return jsonify(message), return_code
+    return make_response(jsonify(message), return_code)
 
+
+######################################################################
+#  U T I L I T Y   F U N C T I O N S
+######################################################################
+
+@app.before_first_request
+def init_db(redis=None):
+    """ Initlaize the model """
+    Order.init_db(redis)
+
+# load sample data
+def data_load(payload):
+    """ Loads a Pet into the database """
+    order = Order(0, payload['customer_id'], payload['order_total'],payload['order_time'],1)
+    order.save()
+
+def data_reset():
+    """ Removes all Pets from the database """
+    order.remove_all()
+
+def check_content_type(content_type):
+    """ Checks that the media type is correct """
+    if request.headers['Content-Type'] == content_type:
+        return
+    app.logger.error('Invalid Content-Type: %s', request.headers['Content-Type'])
+    abort(status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, 'Content-Type must be {}'.format(content_type))
+
+#@app.before_first_request
+def initialize_logging(log_level=logging.INFO):
+    """ Initialized the default logging to STDOUT """
+    if not app.debug:
+        print 'Setting up logging...'
+        # Set up default logging for submodules to use STDOUT
+        # datefmt='%m/%d/%Y %I:%M:%S %p'
+        fmt = '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+        logging.basicConfig(stream=sys.stdout, level=log_level, format=fmt)
+        # Make a new log handler that uses STDOUT
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter(fmt))
+        handler.setLevel(log_level)
+        # Remove the Flask default handlers and use our own
+        handler_list = list(app.logger.handlers)
+        for log_handler in handler_list:
+            app.logger.removeHandler(log_handler)
+        app.logger.addHandler(handler)
+        app.logger.setLevel(log_level)
+        app.logger.info('Logging handler established')
 ######################################################################
 #   M A I N
 ######################################################################
 if __name__ == "__main__":
     # dummy data for testing
 
-    Order(0,"01",10,"11:01").save()
-    Order(0,"02",20,"17:11").save()
+  #  Order(0,"01",10,"11:01").save()
+  #  Order(0,"02",20,"17:11").save()
 
     app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
