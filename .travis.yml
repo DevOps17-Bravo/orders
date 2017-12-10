@@ -24,4 +24,8 @@ after_success:
   - codecov
 
 services:
+<<<<<<< HEAD
   - redis-server
+=======
+  - redis-server
+>>>>>>> 1efdecf322778800c3bc8333c2c2dc8195b706d1
