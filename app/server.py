@@ -20,7 +20,7 @@ It demonstraits how a RESTful service should be implemented.
 
 Paths
 -----
-GET / - Displays a UI for Selenium testing 
+GET / - Displays a UI for Selenium testing
 GET  /orders - Retrieves a list of orders from the database
 GET  /orders{id} - Retrirves an Order with a specific id
 POST /orders - Creates an Order in the datbase from the posted database
@@ -69,7 +69,7 @@ def index():
     #return jsonify(name="Order Demo REST API Service",
     #              version="1.0",
     #               url=url_for("list_orders", _external=True)), HTTP_200_OK
-	return app.send_static_file('index.html')
+    return app.send_static_file('index.html')
 
 
 ######################################################################
@@ -216,13 +216,3 @@ def initialize_logging(log_level=logging.INFO):
         app.logger.addHandler(handler)
         app.logger.setLevel(log_level)
         app.logger.info('Logging handler established')
-######################################################################
-#   M A I N
-######################################################################
-if __name__ == "__main__":
-    # dummy data for testing
-
-  #  Order(0,"01",10,"11:01").save()
-  #  Order(0,"02",20,"17:11").save()
-
-    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
