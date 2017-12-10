@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Pet Demo RESTful Service</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="static/stylesheets/style.css">
+    <script type="text/javascript" src = "static/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="static/rest_api.js"></script>
+  </head>
+  <body>
+      <table>
+		<tr>
+            <td style= "width:30%;">
+              <img class = "newappIcon" src="static/images/newapp-icon.png">
+            </td>
+			<td>
+				<h1 id = "message">Pet Demo REST API Service</h1>
+				<p class='description'>
+				GET <a href="/orders" id = "get_orders">/orders</a> to see all the pets.
+				<br><br>
+                <!--GET <a href="/orders?category=dog">/orders?category=dog</a> to see all of the orders in the 'dog' category.-->
+				<!--<br><br>-->
+                Try it now:
+                <hr />
+                <div class = "create">
+                    <h4>Create a Order</h4>
+                    <input type="hidden" id="create_available" value="true">
+                    <!--<label>Order ID:</label>-->
+                    <!--<input type="text" id="create_order_id"><br>-->
+                    <label>Customer ID:</label>
+                    <input type="text" id="create_customer_id"><br>
+                    <label>Order Total:</label>
+                    <input type="text" id="create_order_total"><br>
+                    <label>Order Time:</label>
+                    <input type="text" id="create_order_time"><br>
+                    <label>Order Status:</label>
+                    <input type="text" id="create_order_status"><br>
+                    <button id = "create-btn">Create</button>
+                    <br>
+                    <div class = "create-display">
+                        <div id="create_result_order_id"></div>
+                        <div id="create_result_customer_id"></div>
+                        <div id="create_result_order_total"></div>
+                        <div id="create_result_order_time"></div>
+                        <div id="create_result_order_status"></div>
+                    </div>
+                </div>
+                <br><hr />
+                <div class = "retrieve">
+                    <h4>Retrieve an Order</h4>
+                    <label>Enter Order ID:</label>
+                    <input type="text" id="retrieve_order_id">
+                    <button id = "retrieve-btn">Retrieve</button>
+                    <br><div class = "retrieve-display">
+                        <div id="retrieve_result_order_id"></div>
+                        <div id="retrieve_result_customer_id"></div>
+                        <div id="retrieve_result_order_total"></div>
+                        <div id="retrieve_result_order_time"></div>
+                        <div id="retrieve_result_order_status"></div>
+                    </div>
+                </div>
+                <br><hr />
+                <div class = "update">
+                    <h4>Update an Order</h4>
+                    <label>Order ID:</label>
+                    <input type="text" id="update_order_id"><br>
+                    <label>Customer ID:</label>
+                    <input type="text" id="update_customer_id"><br>
+                    <label>Order Total:</label>
+                    <input type="text" id="update_order_total"><br>
+                    <label>Order Time:</label>
+                    <input type="text" id="update_order_time"><br>
+                    <label>Order Status:</label>
+                    <input type="text" id="update_order_status"><br>
+                    <button id = "update-btn">Update</button>
+                    <br><div class = "update-display">
+                        <div id="update_result_order_id"></div>
+                        <div id="update_result_customer_id"></div>
+                        <div id="update_result_order_total"></div>
+                        <div id="update_result_order_time"></div>
+                        <div id="update_result_order_status"></div>
+                    </div>
+                </div>
+                <br><hr />
+                <div class = "delete">
+                    <h4>Delete an Order</h4>
+                    <label>Enter Order ID:</label>
+                    <input type="text" id="delete_order_id">
+                    <button id = "delete-btn">Delete</button>
+                    <br><div class = "delete-display">
+                        <div id="delete_result"></div>
+                    </div>
+                </div>
+
+			</td>
+		</tr>
+	</table>
+  </body>
+</html>
