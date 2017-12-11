@@ -7,7 +7,7 @@ Background:
     Given the following orders
         | order_id | customer_id | order_total | order_time | order_status |  
         |  1       | alpha       | 100         | 06/06/2017 | 1            |
-        |  2       | beta        | 500         | 09/15/2017 | 0            |
+        |  2       | beta        | 500         | 09/15/2017 | 1            |
         |  3       | gamma       | 1000        | 04/14/2017 | 1            |
 
 Scenario: The server is running

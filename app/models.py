@@ -31,10 +31,12 @@ from redis import Redis
 from redis.exceptions import ConnectionError
 from app.custom_exceptions import DataValidationError
 
-class DataValidationError(Exception):
-    """ Used for an data validation errors when deserializing """
-    pass
 
+######################################################################
+# Order Model for database
+#   This class must be initialized with use_db(redis) before using
+#   where redis is a value connection to a Redis database
+######################################################################
 class Order(object):
     """
     Order interface to database
@@ -64,7 +66,6 @@ class Order(object):
         """
         if self.order_id == 0:
             self.order_id = Order.__next_index()
-            Order.data.append(self)
         Order.redis.set(self.order_id, pickle.dumps(self.serialize()))
 
     def delete(self):
@@ -73,8 +74,13 @@ class Order(object):
 
     def serialize(self):
         """ Serializes an Order into a dictionary """
-        return {"order_id": self.order_id, "customer_id": self.customer_id, "order_total": self.order_total,
-                "order_time": self.order_time, "order_status": self.order_status}
+        return {
+            "order_id": self.order_id,
+            "customer_id": self.customer_id,
+            "order_total": self.order_total,
+            "order_time": self.order_time,
+            "order_status": self.order_status
+        }
 
     def deserialize(self, data):
         """
@@ -92,10 +98,20 @@ class Order(object):
             raise DataValidationError('Invalid order data: ' + str(Order.__validator.errors))
         return self
 
+
+######################################################################
+#  S T A T I C   D A T A B S E   M E T H O D S
+######################################################################
+
     @staticmethod
     def __next_index():
         """ Increments the index and returns it """
         return Order.redis.incr('index')
+
+    @staticmethod
+    def remove_all():
+        """ Removes all of the Orders from the database """
+        Order.redis.flushall()
 
     @staticmethod
     def all():
@@ -108,21 +124,14 @@ class Order(object):
                 results.append(order)
         return results
 
-    @staticmethod
-    def remove_all():
-        """ Removes all of the Orders from the database """
-        Order.redis.flushall()
+
+######################################################################
+#  F I N D E R   M E T H O D S
+######################################################################
 
     @staticmethod
     def find(order_id):
-        """ Finds an Order by it's ID """
-        if not Order.data:
-            return None
-        orders = [order for order in Order.data if order.order_id == order_id]
-        if orders:
-            return orders[0]
-        return None
-
+        """ Finds an Order by its order ID """
         if Order.redis.exists(order_id):
             data = pickle.loads(Order.redis.get(order_id))
             order = Order(data['order_id']).deserialize(data)
@@ -159,6 +168,11 @@ class Order(object):
             name (string): the name of the Orders you want to match
         """
         return Order.__find_by('customer_id', customer_id)
+
+
+######################################################################
+#  R E D I S   D A T A B A S E   C O N N E C T I O N   M E T H O D S
+######################################################################
 
     @staticmethod
     def connect_to_redis(hostname, port, password):
