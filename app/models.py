@@ -143,21 +143,11 @@ class Order(object):
         """ Generic Query that finds a key with a specific value """
         # return [order for order in Order.__data if order.category == category]
         Order.logger.info('Processing %s query for %s', attribute, value)
-        if isinstance(value, str):
-            search_criteria = value.lower() # make case insensitive
-        else:
-            search_criteria = value
         results = []
         for key in Order.redis.keys():
             if key != 'index':  # filer out our id index
                 data = pickle.loads(Order.redis.get(key))
-                # perform case insensitive search on strings
-                if isinstance(data[attribute], str):
-                    test_value = data[attribute].lower()
-                else:
-                    test_value = data[attribute]
-                if test_value == search_criteria:
-                    results.append(Order(data['order_id']).deserialize(data))
+                results.append(Order(data['order_id']).deserialize(data))
         return results
 
     @staticmethod

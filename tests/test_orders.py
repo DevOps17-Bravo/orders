@@ -4,11 +4,11 @@
 
 import unittest
 import json
-from models import Order, DataValidationError
+import os
+from app.models import Order, DataValidationError
 from mock import patch
 from redis import Redis, ConnectionError
 from werkzeug.exceptions import NotFound
-from app.models import Order
 from app.custom_exceptions import DataValidationError
 from app import server  # to get Redis
 
@@ -59,7 +59,7 @@ class TestOrders(unittest.TestCase):
         # Change order_total an save it
         order.order_total = 100
         order.save()
-        self.assertEqual( order_id, 1)
+        self.assertEqual( order.order_id, 1)
         # Fetch it back and make sure the id hasn't changed
         # but the data did change
         orders = Order.all()
@@ -93,11 +93,11 @@ class TestOrders(unittest.TestCase):
         order = Order(data["order_id"])
         order.deserialize(data)
         self.assertNotEqual( order, None )
-        self.assertNotEqual( order.order_id, 1 )
+        self.assertEqual( order.order_id, 1 )
         self.assertEqual( order.customer_id, "321" )
         self.assertEqual( order.order_total, 999 )
         self.assertEqual( order.order_time, "98765")
-        self.assertEqual( orders.order_status, 1)
+        self.assertEqual( order.order_status, 1)
 
 
     def test_deserialize_an_order_with_no_customer_id(self):
@@ -121,7 +121,7 @@ class TestOrders(unittest.TestCase):
         self.assertEqual( order.order_id, 2 )
         self.assertEqual( order.customer_id, "2")
         self.assertEqual( order.order_total, 100)
-        self.assertEqual( order_time, "222")
+        self.assertEqual( order.order_time, "222")
 
     def test_find_with_no_orders(self):
         order = Order.find(1)
@@ -131,6 +131,16 @@ class TestOrders(unittest.TestCase):
         Order(0, "5", 1, "1221").save()
         order = Order.find(2)
         self.assertIs( order, None)
+
+    def test_find_by_customer_id(self):
+        Order(0, "1", 10, "111").save()
+        Order(0, "2", 100, "222").save()
+        orders = Order.find_by_customer_id("1")
+        self.assertNotEqual(len(orders), 0)
+        self.assertEqual(orders[0].customer_id, "1")
+        self.assertEqual(orders[0].order_total, 10)
+
+
 
 #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
     @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
