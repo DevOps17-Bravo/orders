@@ -3,10 +3,10 @@
 # nosetests --nologcapture
 # nosetests -v --rednose
 
-import logging
 import unittest
+import logging
 import json
-import server
+from app import server
 
 # Status Codes
 HTTP_200_OK = 200
@@ -14,6 +14,7 @@ HTTP_201_CREATED = 201
 HTTP_204_NO_CONTENT = 204
 HTTP_400_BAD_REQUEST = 400
 HTTP_404_NOT_FOUND = 404
+HTTP_405_METHOD_NOT_ALLOWED = 405
 HTTP_409_CONFLICT = 409
 
 ######################################################################
@@ -22,10 +23,12 @@ HTTP_409_CONFLICT = 409
 class TestOrderServer(unittest.TestCase):
 
     def setUp(self):
-        server.app.debug = True
         self.app = server.app.test_client()
-        server.Order(0, "2", 3, "4", 1).save()
-        server.Order(0, "6", 7, "8", 1).save()
+        server.initialize_logging(logging.CRITICAL)
+        server.init_db()
+        server.data_reset()
+        server.data_load({"2", 3, "4", 1})
+        server.data_load({"6", 7, "8", 1})
 
     def tearDown(self):
         server.Order.remove_all()
