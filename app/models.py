@@ -37,7 +37,7 @@ class DataValidationError(Exception):
 
 class Order(object):
     """
-    Pet interface to database
+    Order interface to database
     """
     logger = logging.getLogger(__name__)
     redis = None
@@ -111,7 +111,7 @@ class Order(object):
     @staticmethod
     def remove_all():
         """ Removes all of the Orders from the database """
-        Pet.redis.flushall()
+        Order.redis.flushall()
 
     @staticmethod
     def find(order_id):
@@ -123,10 +123,10 @@ class Order(object):
             return orders[0]
         return None
 
-        if Pet.redis.exists(pet_id):
-            data = pickle.loads(Pet.redis.get(pet_id))
-            pet = Pet(data['order_id']).deserialize(data)
-            return pet
+        if Order.redis.exists(order_id):
+            data = pickle.loads(Order.redis.get(order_id))
+            order = Order(data['order_id']).deserialize(data)
+            return order
         return None
 
     @staticmethod
@@ -213,5 +213,5 @@ class Order(object):
                 Order.connect_to_redis('redis', 6379, None)
         if not Order.redis:
             # if you end up here, redis instance is down.
-            Pet.logger.fatal('*** FATAL ERROR: Could not connect to the Redis Service')
+            Order.logger.fatal('*** FATAL ERROR: Could not connect to the Redis Service')
             raise ConnectionError('Could not connect to the Redis Service')

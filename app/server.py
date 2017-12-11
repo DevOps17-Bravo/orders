@@ -187,7 +187,7 @@ def data_load(payload):
 
 def data_reset():
     """ Removes all Pets from the database """
-    order.remove_all()
+    Order.remove_all()
 
 def check_content_type(content_type):
     """ Checks that the media type is correct """
