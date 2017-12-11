@@ -1,26 +1,62 @@
-from behave import *
+"""
+Order Steps
+
+Steps file for Order.feature
+"""
+
+from os import getenv
 import json
+import requests
+from behave import *
+from compare import expect, ensure
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions
 from app import server
 
-@when(u'I visit the "home page"')
-def step_impl(context):
-    context.resp = context.app.get('/')
-
-@then(u'I should see "{message}"')
-def step_impl(context, message):
-    assert message in context.resp.data
-
-@then(u'I should not see "{message}"')
-def step_impl(context, message):
-    assert message not in context.resp.data
-
-#######################################################################
+WAIT_SECONDS = 30
+BASE_URL = getenv('BASE_URL', 'http://localhost:5000/')
 
 @given(u'the following orders')
 def step_impl(context):
-    server.data_reset()
+    """ Delete all Orders and load new ones """
+    headers = {'Content-Type': 'application/json'}
+    context.resp = requests.delete(context.base_url + '/orders/reset', headers=headers)
+    expect(context.resp.status_code).to_equal(204)
+    create_url = context.base_url + '/pets'
     for row in context.table:
-        server.data_load({"customer_id": row['customer_id'], "order_total": row['order_total'], "order_time": row['order_time'], "order_status": row['order_status']})
+        data = {
+            "customer_id": row['customer_id'],
+            "order_total": row['order_total'],
+            "order_time": row['order_time'],
+            "order_status": row['order_status']
+        }
+        payload = json.dumps(data)
+        context.resp = requests.post(create_url, data=payload, headers=headers)
+        expect(context.resp.status_code).to_equal(201)
+
+
+@when(u'I visit the "home page"')
+def step_impl(context):
+    context.driver.get(context.base_url)
+
+@then(u'I should see "{message}" in the title')
+def step_impl(context, message):
+    expect(context.driver.title).to_contain(message)
+
+@then(u'I should not see "{message}"')
+def step_impl(context, message):
+    error_msg = "I should not see '%s' in '%s" % (message, context.resp.text)
+    ensure(message in context.resp.text, False, error_msg)
+
+@when(u'I set the "{element_name}" to "{text_string}"')
+def step_impl(context, element_name, text_string):
+    element_id = 'order_' + element_name.lower()
+    element = context.driver.find_element_by_id(element_id)
+    element.clear()
+    element.send_keys(text_string)
+
+#######################################################################
 
 @when(u'I visit "{url}"')
 def step_impl(context, url):

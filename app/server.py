@@ -28,15 +28,17 @@ PUT  /orders/{id} - Updates a Order in the database fom the posted database
 DELETE /orders{id} - Removes a Order from the database that matches the id
 """
 import sys
-import os
 import logging
-from flask import Flask, Response, jsonify, request, json, url_for, make_response
+from flask import jsonify, request, json, url_for, make_response, abort
+from flask_api import status    # HTTP Status Codes
+from werkzeug.exceptions import NotFound
 from app.models import Order
 from . import app
 
 # Error handlers reuire app to be initialized so we must import
 # then only after we have initialized the Flask app instance
 import error_handlers
+
 
 ######################################################################
 # GET HEALTH CHECK
@@ -46,20 +48,7 @@ def healthcheck():
     """ Let them know our heart is still beating """
     return make_response(jsonify(status=200, message='Healthy'), status.HTTP_200_OK)
 
-# Pull options from environment
-DEBUG = (os.getenv("DEBUG", "False") == "True")
-PORT = os.getenv("PORT", "5000")
 
-# Create Flask application
-app = Flask(__name__)
-
-# Status Codes
-HTTP_200_OK = 200
-HTTP_201_CREATED = 201
-HTTP_204_NO_CONTENT = 204
-HTTP_400_BAD_REQUEST = 400
-HTTP_404_NOT_FOUND = 404
-HTTP_409_CONFLICT = 409
 ######################################################################
 # GET INDEX
 ######################################################################
@@ -78,14 +67,15 @@ def index():
 @app.route("/orders", methods=["GET"])
 def list_orders():
     """ Retrieves a list of orders from the database """
-    results = []
     customer_id = request.args.get("customer_id")
     if customer_id:
-        results = Order.find_by_customer_id(customer_id)
+        orders = Order.find_by_customer_id(customer_id)
     else:
-        results = Order.all()
+        orders = Order.all()
 
-    return make_response(jsonify([order.serialize() for order in results]), HTTP_200_OK)
+    results = [order.serialize() for order in orders]
+
+    return make_response(jsonify(results), status.HTTP_200_OK)
 
 ######################################################################
 # RETRIEVE A ORDER
@@ -94,14 +84,9 @@ def list_orders():
 def get_orders(id):
     """ Retrieves a Order with a specific id """
     order = Order.find(id)
-    if order:
-        message = order.serialize()
-        return_code = HTTP_200_OK
-    else:
-        message = {"error" : "Order with id: %s was not found" % str(id)}
-        return_code = HTTP_404_NOT_FOUND
-
-    return make_response(jsonify(message), return_code)
+    if not order:
+        raise NotFound("Order with id '{}' was not found.".format(id))
+    return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # ADD A NEW ORDER
@@ -109,15 +94,26 @@ def get_orders(id):
 
 @app.route('/orders', methods=['POST'])
 def create_orders():
-    """ Creates a Order in the datbase from the posted database """
-    payload = request.get_json()
+    """ Creates a Order in the database from the posted database """
+    if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
+        app.logger.info('Getting data from form submitted')
+        data = {
+            'customer_id': request.form['customer_id'],
+            'order_total': request.form['order_total'],
+            'order_time': request.form['order_time'],
+            'order_status': 1
+        }
+    else:
+        app.logger.info('Getting data from API call')
+        data = request.get_json()
+
+    app.logger.info(data)
     order = Order()
-    order.deserialize(payload)
+    order.deserialize(order)
     order.save()
     message = order.serialize()
-    response = make_response(jsonify(message), HTTP_201_CREATED)
-    response.headers['Location'] = url_for('get_orders', id=order.order_id, _external=True)
-    return make_response(response)
+    location_url = url_for('get_orders', order_id=order.order_id, _external=True)
+    return make_response(jsonify(message), status.HTTP_201_CREATED, {'Location': location_url})
 
 ######################################################################
 # UPDATE AN EXISTING ORDER
@@ -126,18 +122,18 @@ def create_orders():
 @app.route('/orders/<int:id>', methods=['PUT'])
 def update_orders(id):
     """ Updates a Order in the database fom the posted database """
+    check_content_type('application/json')
     order = Order.find(id)
-    if order:
-        payload = request.get_json()
-        order.deserialize(payload)
-        order.save()
-        message = order.serialize()
-        return_code = HTTP_200_OK
-    else:
-        message = {"error" : "Order with id: %s was not found" % str(id)}
-        return_code = HTTP_404_NOT_FOUND
+    if not order:
+        raise NotFound("Order with id '{}' was not found.".format(id))
 
-    return make_response(jsonify(message), return_code)
+    data = request.get_json()
+    app.logger.info(data)
+    order.deserialize(data)
+    order.order_id = id
+    order.save()
+
+    return make_response(jsonify(order.deserialize()), status.HTTP_200_OK)
 
 ######################################################################
 # DELETE A ORDER
@@ -149,7 +145,7 @@ def delete_orders(id):
     order = Order.find(id)
     if order:
         order.delete()
-    return make_response('', HTTP_204_NO_CONTENT)
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # CANCEL AN ORDER
@@ -162,12 +158,21 @@ def cancel_an_order(id):
         order.order_status = 0
         order.save()
         message = order.serialize()
-        return_code = HTTP_200_OK
+        return_code = status.HTTP_200_OK
     else:
         message = {"error" : "Order with id: %s was not found" % str(id)}
-        return_code = HTTP_404_NOT_FOUND
+        return_code = status.HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), return_code)
+
+######################################################################
+# DELETE ALL PET DATA (for testing only)
+######################################################################
+@app.route('/orders/reset', methods=['DELETE'])
+def pets_reset():
+    """ Removes all orders from the database """
+    Order.remove_all()
+    return make_response('', status.HTTP_204_NO_CONTENT)
 
 
 ######################################################################
@@ -182,7 +187,7 @@ def init_db(redis=None):
 # load sample data
 def data_load(payload):
     """ Loads a Pet into the database """
-    order = Order(0, payload['customer_id'], payload['order_total'],payload['order_time'],1)
+    order = Order(0, payload['customer_id'], payload['order_total'], payload['order_time'])
     order.save()
 
 def data_reset():

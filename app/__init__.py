@@ -24,4 +24,4 @@ app = Flask(__name__)
 app.config.from_object('config')
 #print('Database URI {}'.format(app.config['SQLALCHEMY_DATABASE_URI']))
 
-from app import server, models, custom_exceptions
+import server, models, custom_exceptions
