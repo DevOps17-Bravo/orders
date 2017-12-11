@@ -5,13 +5,25 @@
 import unittest
 import json
 from models import Order, DataValidationError
+from mock import patch
+from redis import Redis, ConnectionError
+from werkzeug.exceptions import NotFound
+from app.models import Order
+from app.custom_exceptions import DataValidationError
+from app import server  # to get Redis
 
+
+VCAP_SERVICES = os.getenv('VCAP_SERVICES', None)
+if not VCAP_SERVICES:
+    VCAP_SERVICES = '{"rediscloud": [{"credentials": {' \
+        '"password": "", "hostname": "127.0.0.1", "port": "6379"}}]}'
 ######################################################################
 #  T E S T   C A S E S
 ######################################################################
 class TestOrders(unittest.TestCase):
 
     def setUp(self):
+        Order.init_db()
         Order.remove_all()
 
     def test_create_an_order(self):
@@ -112,6 +124,20 @@ class TestOrders(unittest.TestCase):
         Order(0, "", 1, "").save()
         order = Order.find(2)
         self.assertIs( order, None)
+
+#    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
+    @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
+    def test_vcap_services(self):
+        """ Test if VCAP_SERVICES works """
+        Order.init_db()
+        self.assertIsNotNone(Order.redis)
+
+    @patch('redis.Redis.ping')
+    def test_redis_connection_error(self, ping_error_mock):
+        """ Test a Bad Redis connection """
+        ping_error_mock.side_effect = ConnectionError()
+        self.assertRaises(ConnectionError, Order.init_db)
+        self.assertIsNone(Order.redis)
 
 
 ######################################################################
