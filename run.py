@@ -18,4 +18,4 @@ if __name__ == "__main__":
     print " Order  S E R V I C E   R U N N I N G"
     print "****************************************"
     server.initialize_logging()
-    app.run(host='0.0.0.0', port=int(PORT), debug='True')
+    app.run(host='0.0.0.0', port=int(PORT), debug=DEBUG)
