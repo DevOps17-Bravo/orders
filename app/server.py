@@ -62,7 +62,43 @@ def index():
 ######################################################################
 @app.route('/orders', methods=['GET'])
 def list_orders():
-    """ Returns all of the Orders """
+    """
+    Retrieve a list of Orders
+    This endpoint will return all Orders unless a query parameter is specificed
+    ---
+    tags:
+      - Orders
+    description: The Orders endpoint allows you to query Orders
+    parameters:
+      - name: name
+        in: query
+        description: the customer of Order you are looking for
+        required: false
+        type: string
+      - name: time
+        in: query
+        description: the time of Order you are looking for
+        required: false
+        type: string
+    responses:
+      200:
+        description: An array of Orders
+        schema:
+          type: array
+          items:
+            schema:
+              id: Order
+              properties:
+                id:
+                  type: integer
+                  description: unique id assigned internallt by service
+                name:
+                  type: string
+                  description: the customer's name
+                time:
+                  type: string
+                  description: the time of an order placed
+    """
     orders = []
     time = request.args.get('time')
     name = request.args.get('name')
@@ -84,8 +120,35 @@ def list_orders():
 def get_orders(order_id):
     """
     Retrieve a single Order
-
     This endpoint will return a Order based on it's id
+    ---
+    tags:
+      - Orders
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of oRDER to retrieve
+        type: integer
+        required: true
+    responses:
+      200:
+        description: Order returned
+        schema:
+          id: Order
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internallt by service
+            name:
+              type: string
+              description: the order's customer name
+            time:
+              type: string
+              description: the time of order placed
+      404:
+        description: Order not found
     """
     order = Order.find(order_id)
     if not order:
@@ -98,8 +161,48 @@ def get_orders(order_id):
 @app.route('/orders', methods=['POST'])
 def create_orders():
     """
-    Creates a Order
-    This endpoint will create a Order based the data in the body that is posted
+    Creates an Order
+    This endpoint will create an Order based the data in the body that is posted
+    ---
+    tags:
+      - Orders
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          id: data
+          required:
+            - name
+            - time
+          properties:
+            name:
+              type: string
+              description: customer name for the order
+            time:
+              type: string
+              description: the time of order placed
+    responses:
+      201:
+        description: Order created
+        schema:
+          id: Order
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internally by service
+            name:
+              type: string
+              description: the Order's cutomer name
+            time:
+              type: string
+              description: the time of order placed
+      400:
+        description: Bad Request (the posted data was not valid)
     """
     data = {}
     # Check for form submission data
@@ -130,8 +233,51 @@ def create_orders():
 def update_orders(order_id):
     """
     Update a Order
-
     This endpoint will update a Order based the body that is posted
+    ---
+    tags:
+      - Orders
+    consumes:
+      - application/json
+    produces:
+      - application/json
+    parameters:
+      - name: id
+        in: path
+        description: ID of order to retrieve
+        type: integer
+        required: true
+      - in: body
+        name: body
+        schema:
+          id: data
+          required:
+            - name
+            - time
+          properties:
+            name:
+              type: string
+              description: name for the Order
+            time:
+              type: string
+              description: the time of order palced
+    responses:
+      200:
+        description: Order Updated
+        schema:
+          id: Order
+          properties:
+            id:
+              type: integer
+              description: unique id assigned internallt by service
+            name:
+              type: string
+              description: the order's cutomer name
+            time:
+              type: string
+              description: the time of order placed
+      400:
+        description: Bad Request (the posted data was not valid)
     """
     check_content_type('application/json')
     order = Order.find(order_id)
@@ -151,8 +297,20 @@ def update_orders(order_id):
 def delete_orders(order_id):
     """
     Delete a Order
-
     This endpoint will delete a Order based the id specified in the path
+    ---
+    tags:
+      - Orders
+    description: Deletes a Order from the database
+    parameters:
+      - name: id
+        in: path
+        description: ID of order to delete
+        type: integer
+        required: true
+    responses:
+      204:
+        description: Order deleted
     """
     order = Order.find(order_id)
     if order:
