@@ -2,6 +2,7 @@
 A collection of orders created from products
 
 [![Build Status](https://travis-ci.org/DevOps17-Bravo/orders.svg?branch=master)](https://travis-ci.org/DevOps17-Bravo/orders)
+[![Codecov](https://img.shields.io/codecov/c/github/DevOps17-Bravo/orders.svg)]()
 
 Finally you can see the microservice at: http://localhost:8080/
 
