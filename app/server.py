@@ -58,7 +58,7 @@ def index():
     return app.send_static_file('index.html')
 
 ######################################################################
-# LIST ALL PETS
+# LIST ALL ORDERS
 ######################################################################
 @app.route('/orders', methods=['GET'])
 def list_orders():
@@ -78,7 +78,7 @@ def list_orders():
 
 
 ######################################################################
-# RETRIEVE A PET
+# RETRIEVE AN ORDER
 ######################################################################
 @app.route('/orders/<int:order_id>', methods=['GET'])
 def get_orders(order_id):
@@ -93,7 +93,7 @@ def get_orders(order_id):
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# ADD A NEW PET
+# ADD A NEW ORDER
 ######################################################################
 @app.route('/orders', methods=['POST'])
 def create_orders():
@@ -124,7 +124,7 @@ def create_orders():
 
 
 ######################################################################
-# UPDATE AN EXISTING PET
+# UPDATE AN EXISTING ORDER
 ######################################################################
 @app.route('/orders/<int:order_id>', methods=['PUT'])
 def update_orders(order_id):
@@ -145,7 +145,7 @@ def update_orders(order_id):
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# DELETE A PET
+# DELETE AN ORDER
 ######################################################################
 @app.route('/orders/<int:order_id>', methods=['DELETE'])
 def delete_orders(order_id):
@@ -160,11 +160,11 @@ def delete_orders(order_id):
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
-# PURCHASE A PET
+# PURCHASE AN ORDER
 ######################################################################
 @app.route('/orders/<int:order_id>/purchase', methods=['PUT'])
 def purchase_orders(order_id):
-    """ Purchasing a Order makes it unstatus """
+    """ Purchasing an Order makes it unstatus """
     order = Order.find(order_id)
     if not order:
         abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' was not found.".format(order_id))

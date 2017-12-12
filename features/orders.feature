@@ -15,7 +15,7 @@ Scenario: The server is running
     Then I should see "Order Demo RESTful Service" in the title
     And I should not see "404 Not Found"
 
-Scenario: Create a Order
+Scenario: Create an Order
     When I visit the "Home Page"
     And I set the "Name" to "Happy"
     And I set the "Time" to "12/21"
@@ -29,7 +29,7 @@ Scenario: List all orders
     And I should see "kitty" in the results
     And I should see "leo" in the results
 
-Scenario: List all customer_order
+Scenario: Query by Customer Id 
     When I visit the "Home Page"
     And I set the "Name" to "fido"
     And I press the "Search" button
@@ -37,7 +37,15 @@ Scenario: List all customer_order
     And I should not see "kitty" in the results
     And I should not see "leo" in the results
 
-Scenario: Update a Order
+Scenario: Query by Time 
+    When I visit the "Home Page"
+    And I set the "Time" to "09/15"
+    And I press the "Search" button
+    Then I should see "kitty" in the results
+    And I should not see "leo" in the results
+    And I should not see "fido" in the results
+
+Scenario: Update an Order
     When I visit the "Home Page"
     And I set the "Id" to "1"
     And I press the "Retrieve" button
@@ -52,3 +60,14 @@ Scenario: Update a Order
     And I press the "Search" button
     Then I should see "Boxer" in the results
     Then I should not see "fido" in the results
+
+Scenario: Delete an Order
+    When I visit the "Home Page"
+    And I set the "Id" to "1"
+    And I press the "Delete" button
+    And I press the "Clear" button
+    And I press the "Search" button 
+    Then I should see "kitty" in the results
+    And I should see "leo" in the results
+    And I should not see "fido" in the results
+
