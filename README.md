@@ -3,6 +3,13 @@ A collection of orders created from products
 
 [![Build Status](https://travis-ci.org/DevOps17-Bravo/orders.svg?branch=master)](https://travis-ci.org/DevOps17-Bravo/orders)
 
+Finally you can see the microservice at: http://localhost:8080/
+
+The Swagger docs can be accessed at: http://localhost:8080/apidocs/index.html
+
+The raw Swagger specification JSON can be found at: http://localhost:8080/v1/spec
+
+
 ## 1. Instructions for using the environment 
 
 -**Download from github:**
