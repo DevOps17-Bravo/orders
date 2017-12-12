@@ -12,8 +12,8 @@ Background:
 
 Scenario: The server is running
     When I visit the "home page"
-    Then I should see "Order Demo RESTful Service"
-    Then I should not see "404 Not Found"
+    Then I should see "Order Demo RESTful Service" in the title
+    And I should not see "404 Not Found"
 
 #Scenario: Create an order
 #    When I visit the "Home Page"

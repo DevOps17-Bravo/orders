@@ -85,7 +85,7 @@ class Order(object):
     def deserialize(self, data):
         """
         Deserializes an Order from a dictionary
-
+        
         Args:
             data (dict): A dictionary containing the Order data
         """

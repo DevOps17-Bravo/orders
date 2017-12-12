@@ -80,12 +80,12 @@ def list_orders():
 ######################################################################
 # RETRIEVE A ORDER
 ######################################################################
-@app.route("/orders/<int:id>", methods=["GET"])
-def get_orders(id):
+@app.route("/orders/<int:order_id>", methods=["GET"])
+def get_orders(order_id):
     """ Retrieves a Order with a specific id """
-    order = Order.find(id)
+    order = Order.find(order_id)
     if not order:
-        raise NotFound("Order with id '{}' was not found.".format(id))
+        raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
@@ -98,10 +98,11 @@ def create_orders():
     if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
         app.logger.info('Getting data from form submitted')
         data = {
+            'order_id': int(request.form['order_id']),
             'customer_id': request.form['customer_id'],
-            'order_total': request.form['order_total'],
+            'order_total': int(request.form['order_total']),
             'order_time': request.form['order_time'],
-            'order_status': 1
+            'order_status': int(request.form['order_status'])
         }
     else:
         app.logger.info('Getting data from API call')
@@ -109,10 +110,12 @@ def create_orders():
 
     app.logger.info(data)
     order = Order()
-    order.deserialize(order)
+    order.deserialize(data)
     order.save()
     message = order.serialize()
+
     location_url = url_for('get_orders', order_id=order.order_id, _external=True)
+
     return make_response(jsonify(message), status.HTTP_201_CREATED, {'Location': location_url})
 
 ######################################################################
@@ -133,7 +136,7 @@ def update_orders(id):
     order.order_id = id
     order.save()
 
-    return make_response(jsonify(order.deserialize()), status.HTTP_200_OK)
+    return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # DELETE A ORDER
