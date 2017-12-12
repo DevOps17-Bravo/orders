@@ -2,6 +2,7 @@
 A collection of orders created from products
 
 [![Build Status](https://travis-ci.org/DevOps17-Bravo/orders.svg?branch=master)](https://travis-ci.org/DevOps17-Bravo/orders)
+[![Codecov](https://img.shields.io/codecov/c/github/DevOps17-Bravo/orders.svg)]()
 
 ## 1. Instructions for using the environment 
 
