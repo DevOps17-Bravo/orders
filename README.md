@@ -1,7 +1,9 @@
 # orders
 A collection of order items created from products
 
-##1. Instructions for using the environment 
+[![Build Status](https://travis-ci.org/DevOps17-Bravo/orders.svg?branch=master)](https://travis-ci.org/DevOps17-Bravo/orders)
+
+## 1. Instructions for using the environment 
 
 -**Download from github:**
 ```
