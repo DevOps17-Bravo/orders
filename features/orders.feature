@@ -6,9 +6,9 @@ Feature: The order store service back-end
 Background:
     Given the following orders
         | id | name       | time | status |
-        |  1 | fido       | dog      | True      |
-        |  2 | kitty      | cat      | True      |
-        |  3 | leo        | lion     | True      |
+        |  1 | fido       | 06/06      | True      |
+        |  2 | kitty      | 09/15      | True      |
+        |  3 | leo        | 04/14     | True      |
 
 Scenario: The server is running
     When I visit the "Home Page"
@@ -18,7 +18,7 @@ Scenario: The server is running
 Scenario: Create a Order
     When I visit the "Home Page"
     And I set the "Name" to "Happy"
-    And I set the "Time" to "Hippo"
+    And I set the "Time" to "12/21"
     And I press the "Create" button
     Then I should see the message "Success"
 
@@ -29,9 +29,9 @@ Scenario: List all orders
     And I should see "kitty" in the results
     And I should see "leo" in the results
 
-Scenario: List all dogs
+Scenario: List all customer_order
     When I visit the "Home Page"
-    And I set the "Time" to "dog"
+    And I set the "Name" to "fido"
     And I press the "Search" button
     Then I should see "fido" in the results
     And I should not see "kitty" in the results
