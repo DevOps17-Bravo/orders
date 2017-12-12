@@ -49,13 +49,13 @@ class TestOrderServer(unittest.TestCase):
         #print 'resp_data: ' + resp.data
         self.assertEqual( resp.status_code, HTTP_200_OK )
         data = json.loads(resp.data)
-        self.assertEqual(data["customer_id": "6"])
+        self.assertEqual(data["customer_id"], "6")
 
     def test_get_order_not_found(self):
-        resp = self.app.get('/orders/0')
+        resp = self.app.get('/orders/1000')
         self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
         data = json.loads(resp.data)
-        self.assertIn('was not fount', data['message'])
+        self.assertIn('was not found', data['message'])
 
     def test_create_order(self):
         # save the current number of orders for later comparison
@@ -82,17 +82,17 @@ class TestOrderServer(unittest.TestCase):
     def test_update_order(self):
         new_order = {"customer_id": "2", "order_total": 5, "order_time": "4", "order_status": 1}
         data = json.dumps(new_order)
-        resp = self.app.put("/orders/2", data=data, content_type="application/json")
+        resp = self.app.put("/orders/1", data=data, content_type="application/json")
         self.assertEqual( resp.status_code, HTTP_200_OK )
-        resp = self.app.get("/orders/2", content_type='application/json')
+        resp = self.app.get("/orders/1", content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_200_OK )
         new_json = json.loads(resp.data)
         self.assertEqual (new_json["order_total"], 5)
 
     def test_update_order_with_nonexisting_order(self):
-        new_order = {"customer_id": "100" ,"order_total" : 3, "order_time": "4", "order_status": 1}
+        new_order = {"customer_id": "2" ,"order_total" : 3, "order_time": "4", "order_status": 1}
         data = json.dumps(new_order)
-        resp = self.app.put('/orders/2', data=data, content_type='application/json')
+        resp = self.app.put('/orders/3', data=data, content_type='application/json')
         self.assertEqual( resp.status_code, HTTP_404_NOT_FOUND )
 
     def test_delete_order(self):
@@ -129,12 +129,12 @@ class TestOrderServer(unittest.TestCase):
         self.assertEqual( resp.status_code, HTTP_404_NOT_FOUND )
 
     def test_query_order_list(self):
-        resp = self.app.get("/orders", query_string="order_id=1")
+        resp = self.app.get("/orders", query_string="customer_id=6")
         self.assertEqual( resp.status_code, HTTP_200_OK )
         self.assertTrue( len(resp.data) > 0 )
         data = json.loads(resp.data)
         query_item = data[0]
-        self.assertEqual(query_item["order_id"], 1)
+        self.assertEqual(query_item["customer_id"], "6")
 
     def test_cancel_an_order(self):
         resp = self.app.put('/orders/1/cancel')

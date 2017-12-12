@@ -67,6 +67,7 @@ def index():
 @app.route("/orders", methods=["GET"])
 def list_orders():
     """ Retrieves a list of orders from the database """
+    orders = []
     customer_id = request.args.get("customer_id")
     if customer_id:
         orders = Order.find_by_customer_id(customer_id)
@@ -94,6 +95,7 @@ def get_orders(order_id):
 
 @app.route('/orders', methods=['POST'])
 def create_orders():
+    data = {}
     """ Creates a Order in the database from the posted database """
     if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
         app.logger.info('Getting data from form submitted')
@@ -107,7 +109,6 @@ def create_orders():
     else:
         app.logger.info('Getting data from API call')
         data = request.get_json()
-
     app.logger.info(data)
     order = Order()
     order.deserialize(data)
@@ -122,18 +123,18 @@ def create_orders():
 # UPDATE AN EXISTING ORDER
 ######################################################################
 
-@app.route('/orders/<int:id>', methods=['PUT'])
-def update_orders(id):
+@app.route('/orders/<int:order_id>', methods=['PUT'])
+def update_orders(order_id):
     """ Updates a Order in the database fom the posted database """
     check_content_type('application/json')
-    order = Order.find(id)
+    order = Order.find(order_id)
     if not order:
-        raise NotFound("Order with id '{}' was not found.".format(id))
+        raise NotFound("Order with id '{}' was not found.".format(order_id))
 
     data = request.get_json()
     app.logger.info(data)
     order.deserialize(data)
-    order.order_id = id
+    order.order_id = order_id
     order.save()
 
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
@@ -142,10 +143,10 @@ def update_orders(id):
 # DELETE A ORDER
 ######################################################################
 
-@app.route('/orders/<int:id>', methods=['DELETE'])
-def delete_orders(id):
+@app.route('/orders/<int:order_id>', methods=['DELETE'])
+def delete_orders(order_id):
     """ Removes a Order from the database that matches the id """
-    order = Order.find(id)
+    order = Order.find(order_id)
     if order:
         order.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)
@@ -154,16 +155,16 @@ def delete_orders(id):
 # CANCEL AN ORDER
 ######################################################################
 
-@app.route('/orders/<int:id>/cancel', methods=['PUT'])
-def cancel_an_order(id):
-    order = Order.find(id)
+@app.route('/orders/<int:order_id>/cancel', methods=['PUT'])
+def cancel_an_order(order_id):
+    order = Order.find(order_id)
     if order:
         order.order_status = 0
         order.save()
         message = order.serialize()
         return_code = status.HTTP_200_OK
     else:
-        message = {"error" : "Order with id: %s was not found" % str(id)}
+        message = {"error" : "Order with id: %s was not found" % str(order_id)}
         return_code = status.HTTP_404_NOT_FOUND
 
     return make_response(jsonify(message), return_code)
@@ -190,7 +191,7 @@ def init_db(redis=None):
 # load sample data
 def data_load(payload):
     """ Loads a Pet into the database """
-    order = Order(0, payload['customer_id'], payload['order_total'], payload['order_time'])
+    order = Order(0, payload['customer_id'], payload['order_total'], payload['order_time'], payload["order_status"])
     order.save()
 
 def data_reset():
