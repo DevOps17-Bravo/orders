@@ -6,20 +6,21 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#order_id").val(str(res.order_id));
-        $("#customer_id").val(res.customer_id);
-        $("#order_total").val(str(res.order_total));
-        $("#order_time").val(res.order_time);
-        $("#order_status").val(str(res.order_status));
+        $("#order_id").val(res.id);
+        $("#order_name").val(res.name);
+        $("#order_time").val(res.time);
+        if (res.status == true) {
+            $("#order_status").val("true");
+        } else {
+            $("#order_status").val("false");
+        }
     }
 
     /// Clears all form fields
     function clear_form_data() {
-        $("#order_id").val();
-        $("#customer_id").val();
-        $("#order_total").val();
-        $("#order_time").val();
-        $("#order_status").val();
+        $("#order_name").val("");
+        $("#order_time").val("");
+        $("#order_status").val("");
     }
 
     // Updates the flash message area
@@ -29,23 +30,19 @@ $(function () {
     }
 
     // ****************************************
-    // Create an Order
+    // Create a Order
     // ****************************************
 
     $("#create-btn").click(function () {
 
-        var order_id = $("#order_id").val();
-        var customer_id = $("#customer_id").val();
-        var order_total = $("#order_total").val();
-        var order_time = $("#order_time").val();
-        var order_status = $("#order_status").val();
+        var name = $("#order_name").val();
+        var time = $("#order_time").val();
+        var status = $("#order_status").val() == "true";
 
         var data = {
-            "order_id": int(order_id),
-            "customer_id": customer_id,
-            "order_total": int(order_total),
-            "order_time": order_time,
-            "order_status": int(order_status)
+            "name": name,
+            "time": time,
+            "status": status
         };
 
         var ajax = $.ajax({
@@ -67,28 +64,25 @@ $(function () {
 
 
     // ****************************************
-    // Update an Order
+    // Update a Order
     // ****************************************
 
     $("#update-btn").click(function () {
 
         var order_id = $("#order_id").val();
-        var customer_id = $("#customer_id").val();
-        var order_total = $("#order_total").val();
-        var order_time = $("#order_time").val();
-        var order_status = $("#order_status").val();
+        var name = $("#order_name").val();
+        var time = $("#order_time").val();
+        var status = $("#order_status").val() == "true";
 
         var data = {
-            "order_id": order_id,
-            "customer_id": customer_id,
-            "order_total": order_total,
-            "order_time": order_time,
-            "order_status": order_status
+            "name": name,
+            "time": time,
+            "status": status
         };
 
         var ajax = $.ajax({
                 type: "PUT",
-                url: "/orders/" + pet_id,
+                url: "/orders/" + order_id,
                 contentType:"application/json",
                 data: JSON.stringify(data)
             })
@@ -105,7 +99,7 @@ $(function () {
     });
 
     // ****************************************
-    // Retrieve an Order
+    // Retrieve a Order
     // ****************************************
 
     $("#retrieve-btn").click(function () {
@@ -133,7 +127,7 @@ $(function () {
     });
 
     // ****************************************
-    // Delete an Order
+    // Delete a Order
     // ****************************************
 
     $("#delete-btn").click(function () {
@@ -149,7 +143,7 @@ $(function () {
 
         ajax.done(function(res){
             clear_form_data()
-            flash_message("Order with ID [" + res.order_id + "] has been Deleted!")
+            flash_message("Order with ID [" + res.id + "] has been Deleted!")
         });
 
         ajax.fail(function(res){
@@ -167,21 +161,33 @@ $(function () {
     });
 
     // ****************************************
-    // Search for an Order
+    // Search for a Order
     // ****************************************
 
     $("#search-btn").click(function () {
 
-        var order_id = $("#order_id").val();
-        var customer_id = $("#customer_id").val();
-        var order_total = $("#order_total").val();
-        var order_time = $("#order_time").val();
-        var order_status = $("#order_status").val();
+        var name = $("#order_name").val();
+        var time = $("#order_time").val();
+        var status = $("#order_status").val() == "true";
 
         var queryString = ""
 
-        if (customer_id) {
-            queryString += 'customer_id=' + customer_id
+        if (name) {
+            queryString += 'name=' + name
+        }
+        if (time) {
+            if (queryString.length > 0) {
+                queryString += '&time=' + time
+            } else {
+                queryString += 'time=' + time
+            }
+        }
+        if (status) {
+            if (queryString.length > 0) {
+                queryString += '&status=' + status
+            } else {
+                queryString += 'status=' + status
+            }
         }
 
         var ajax = $.ajax({
@@ -196,20 +202,14 @@ $(function () {
             $("#search_results").empty();
             $("#search_results").append('<table class="table-striped">');
             var header = '<tr>'
-            header += '<th style="width:10%">Order_ID</th>'
-            header += '<th style="width:40%">Customer_ID</th>'
-            header += '<th style="width:40%">Order_Total</th>'
-            header += '<th style="width:40%">Order_Time</th>'
-            header += '<th style="width:10%">Order_Status</th></tr>'
+            header += '<th style="width:10%">ID</th>'
+            header += '<th style="width:40%">Name</th>'
+            header += '<th style="width:40%">Time</th>'
+            header += '<th style="width:10%">Available</th></tr>'
             $("#search_results").append(header);
             for(var i = 0; i < res.length; i++) {
                 order = res[i];
-                var row = "<tr><td>"+order.order_id
-                    +"</td><td>"+order.customer_id
-                    +"</td><td>"+order.order_total
-                    +"</td><td>"+orer.order_time
-                    +"</td><td>"+orer.order_status
-                    +"</td></tr>";
+                var row = "<tr><td>"+order.id+"</td><td>"+order.name+"</td><td>"+order.time+"</td><td>"+order.status+"</td></tr>";
                 $("#search_results").append(row);
             }
 

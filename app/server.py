@@ -1,3 +1,4 @@
+######################################################################
 # Copyright 2016, 2017 John J. Rofrano. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,22 +12,21 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+######################################################################
 
 """
-Order Shop Demo
+Order Store Service with UI
 
-This is an example of Order service written with Python Flask
-It demonstraits how a RESTful service should be implemented.
-
-Paths
------
+Paths:
+------
 GET / - Displays a UI for Selenium testing
-GET  /orders - Retrieves a list of orders from the database
-GET  /orders{id} - Retrirves an Order with a specific id
-POST /orders - Creates an Order in the datbase from the posted database
-PUT  /orders/{id} - Updates a Order in the database fom the posted database
-DELETE /orders{id} - Removes a Order from the database that matches the id
+GET /orders - Returns a list all of the Orders
+GET /orders/{id} - Returns the Order with a given id number
+POST /orders - creates a new Order record in the database
+PUT /orders/{id} - updates a Order record in the database
+DELETE /orders/{id} - deletes a Order record in the database
 """
+
 import sys
 import logging
 from flask import jsonify, request, json, url_for, make_response, abort
@@ -39,7 +39,6 @@ from . import app
 # then only after we have initialized the Flask app instance
 import error_handlers
 
-
 ######################################################################
 # GET HEALTH CHECK
 ######################################################################
@@ -48,64 +47,68 @@ def healthcheck():
     """ Let them know our heart is still beating """
     return make_response(jsonify(status=200, message='Healthy'), status.HTTP_200_OK)
 
-
 ######################################################################
 # GET INDEX
 ######################################################################
-@app.route("/")
+@app.route('/')
 def index():
-    """ Return something useful by default """
-    #return jsonify(name="Order Demo REST API Service",
-    #              version="1.0",
-    #               url=url_for("list_orders", _external=True)), HTTP_200_OK
+    # data = '{name: <string>, time: <string>}'
+    # url = request.base_url + 'orders' # url_for('list_orders')
+    # return jsonify(name='Order Demo REST API Service', version='1.0', url=url, data=data), status.HTTP_200_OK
     return app.send_static_file('index.html')
 
-
 ######################################################################
-# LIST ALL ORDERS
+# LIST ALL PETS
 ######################################################################
-@app.route("/orders", methods=["GET"])
+@app.route('/orders', methods=['GET'])
 def list_orders():
-    """ Retrieves a list of orders from the database """
+    """ Returns all of the Orders """
     orders = []
-    customer_id = request.args.get("customer_id")
-    if customer_id:
-        orders = Order.find_by_customer_id(customer_id)
+    time = request.args.get('time')
+    name = request.args.get('name')
+    if time:
+        orders = Order.find_by_time(time)
+    elif name:
+        orders = Order.find_by_name(name)
     else:
         orders = Order.all()
 
     results = [order.serialize() for order in orders]
-
     return make_response(jsonify(results), status.HTTP_200_OK)
 
+
 ######################################################################
-# RETRIEVE A ORDER
+# RETRIEVE A PET
 ######################################################################
-@app.route("/orders/<int:order_id>", methods=["GET"])
+@app.route('/orders/<int:order_id>', methods=['GET'])
 def get_orders(order_id):
-    """ Retrieves a Order with a specific id """
+    """
+    Retrieve a single Order
+
+    This endpoint will return a Order based on it's id
+    """
     order = Order.find(order_id)
-    app.logger.info(order)
     if not order:
         raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# ADD A NEW ORDER
+# ADD A NEW PET
 ######################################################################
-
 @app.route('/orders', methods=['POST'])
 def create_orders():
+    """
+    Creates a Order
+    This endpoint will create a Order based the data in the body that is posted
+    """
     data = {}
-    """ Creates a Order in the database from the posted database """
+    # Check for form submission data
     if request.headers.get('Content-Type') == 'application/x-www-form-urlencoded':
-        app.logger.info('Getting data from form submitted')
+        app.logger.info('Getting data from form submit')
         data = {
-            'order_id': int(request.form['order_id']),
-            'customer_id': request.form['customer_id'],
-            'order_total': int(request.form['order_total']),
-            'order_time': request.form['order_time'],
-            'order_status': int(request.form['order_status'])
+            'name': request.form['name'],
+            'time': request.form['time'],
+            'status': True
         }
     else:
         app.logger.info('Getting data from API call')
@@ -115,70 +118,70 @@ def create_orders():
     order.deserialize(data)
     order.save()
     message = order.serialize()
+    location_url = url_for('get_orders', order_id=order.id, _external=True)
+    return make_response(jsonify(message), status.HTTP_201_CREATED,
+                         {'Location': location_url})
 
-    location_url = url_for('get_orders', order_id=order.order_id, _external=True)
-
-    return make_response(jsonify(message), status.HTTP_201_CREATED, {'Location': location_url})
 
 ######################################################################
-# UPDATE AN EXISTING ORDER
+# UPDATE AN EXISTING PET
 ######################################################################
-
 @app.route('/orders/<int:order_id>', methods=['PUT'])
 def update_orders(order_id):
-    """ Updates a Order in the database fom the posted database """
+    """
+    Update a Order
+
+    This endpoint will update a Order based the body that is posted
+    """
     check_content_type('application/json')
     order = Order.find(order_id)
     if not order:
         raise NotFound("Order with id '{}' was not found.".format(order_id))
-
     data = request.get_json()
     app.logger.info(data)
     order.deserialize(data)
-    order.order_id = order_id
+    order.id = order_id
     order.save()
-
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
-# DELETE A ORDER
+# DELETE A PET
 ######################################################################
-
 @app.route('/orders/<int:order_id>', methods=['DELETE'])
 def delete_orders(order_id):
-    """ Removes a Order from the database that matches the id """
+    """
+    Delete a Order
+
+    This endpoint will delete a Order based the id specified in the path
+    """
     order = Order.find(order_id)
     if order:
         order.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
-# CANCEL AN ORDER
+# PURCHASE A PET
 ######################################################################
-
-@app.route('/orders/<int:order_id>/cancel', methods=['PUT'])
-def cancel_an_order(order_id):
+@app.route('/orders/<int:order_id>/purchase', methods=['PUT'])
+def purchase_orders(order_id):
+    """ Purchasing a Order makes it unstatus """
     order = Order.find(order_id)
-    if order:
-        order.order_status = 0
-        order.save()
-        message = order.serialize()
-        return_code = status.HTTP_200_OK
-    else:
-        message = {"error" : "Order with id: %s was not found" % str(order_id)}
-        return_code = status.HTTP_404_NOT_FOUND
-
-    return make_response(jsonify(message), return_code)
+    if not order:
+        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' was not found.".format(order_id))
+    if not order.status:
+        abort(status.HTTP_400_BAD_REQUEST, "Order with id '{}' is not status.".format(order_id))
+    order.status = False
+    order.save()
+    return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # DELETE ALL PET DATA (for testing only)
 ######################################################################
 @app.route('/orders/reset', methods=['DELETE'])
-def pets_reset():
+def orders_reset():
     """ Removes all orders from the database """
     Order.remove_all()
     return make_response('', status.HTTP_204_NO_CONTENT)
-
 
 ######################################################################
 #  U T I L I T Y   F U N C T I O N S
@@ -191,12 +194,12 @@ def init_db(redis=None):
 
 # load sample data
 def data_load(payload):
-    """ Loads a Pet into the database """
-    order = Order(0, payload['customer_id'], payload['order_total'], payload['order_time'], payload["order_status"])
+    """ Loads a Order into the database """
+    order = Order(0, payload['name'], payload['time'])
     order.save()
 
 def data_reset():
-    """ Removes all Pets from the database """
+    """ Removes all Orders from the database """
     Order.remove_all()
 
 def check_content_type(content_type):
