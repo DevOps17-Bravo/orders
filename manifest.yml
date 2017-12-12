@@ -3,8 +3,8 @@ applications:
   memory: 128M
   instances: 2
   domain: mybluemix.net
-  name: nyu-order-service-f17
-  host: nyu-order-service-f17
+#  name: nyu-order-service-f17
+#  host: nyu-order-service-f17
   disk_quota: 1024M
   services:
   - RedisCloud
