@@ -1,5 +1,5 @@
 # orders
-A collection of order items created from products
+A collection of orders created from products
 
 [![Build Status](https://travis-ci.org/DevOps17-Bravo/orders.svg?branch=master)](https://travis-ci.org/DevOps17-Bravo/orders)
 
