@@ -135,10 +135,10 @@ class TestOrders(unittest.TestCase):
     def test_find_by_customer_id(self):
         Order(0, "1", 10, "111").save()
         Order(0, "2", 100, "222").save()
-        orders = Order.find_by_customer_id("1")
+        orders = Order.find_by_customer_id("2")
         self.assertNotEqual(len(orders), 0)
-        self.assertEqual(orders[0].customer_id, "1")
-        self.assertEqual(orders[0].order_total, 10)
+        self.assertEqual(orders[0].customer_id, "2")
+        self.assertEqual(orders[0].order_total, 100)
 
 
 
