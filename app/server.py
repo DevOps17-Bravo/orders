@@ -85,6 +85,7 @@ def list_orders():
 def get_orders(order_id):
     """ Retrieves a Order with a specific id """
     order = Order.find(order_id)
+    app.logger.info(order)
     if not order:
         raise NotFound("Order with id '{}' was not found.".format(order_id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)

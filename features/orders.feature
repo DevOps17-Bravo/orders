@@ -15,14 +15,16 @@ Scenario: The server is running
     Then I should see "Order Demo RESTful Service" in the title
     And I should not see "404 Not Found"
 
-#Scenario: Create an order
-#    When I visit the "Home Page"
-#    And I set the "customer_id" to "theta"
-#    And I set the "order_total" to "200"
-#    And I set the "order_time" to "12/11/2017"
-#    And I press the "Create" button
-#    Then I should see the message "Success"
-#
+Scenario: Create an order
+    When I visit the "Home Page"
+    And I set the "order_id" to "0"
+    And I set the "customer_id" to "theta"
+    And I set the "order_total" to "200"
+    And I set the "order_time" to "12/11/2017"
+    And I set the "order_status" to "1"
+    And I press the "Create" button
+    Then I should see the message "Success"
+
 #Scenario: List all orders
 #    When I visit "Home Page"
 #    And I press the "Search" button

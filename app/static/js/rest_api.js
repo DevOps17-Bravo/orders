@@ -6,11 +6,11 @@ $(function () {
 
     // Updates the form with data from the response
     function update_form_data(res) {
-        $("#order_id").val(res.order_id);
+        $("#order_id").val(str(res.order_id));
         $("#customer_id").val(res.customer_id);
-        $("#order_total").val(res.order_total);
+        $("#order_total").val(str(res.order_total));
         $("#order_time").val(res.order_time);
-        $("#order_status").val(res.order_status);
+        $("#order_status").val(str(res.order_status));
     }
 
     /// Clears all form fields
@@ -41,11 +41,11 @@ $(function () {
         var order_status = $("#order_status").val();
 
         var data = {
-            "order_id": order_id,
+            "order_id": int(order_id),
             "customer_id": customer_id,
-            "order_total": order_total,
+            "order_total": int(order_total),
             "order_time": order_time,
-            "order_status": order_status
+            "order_status": int(order_status)
         };
 
         var ajax = $.ajax({
