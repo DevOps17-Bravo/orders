@@ -38,14 +38,17 @@ HTTP_409_CONFLICT = 409
 ######################################################################
 class TestOrderServer(unittest.TestCase):
     """ Order Service tests """
+    def test_health(self):
+        resp = self.app.get('/healthcheck')
+        self.assertEqual(resp.status_code,HTTP_200_OK)
 
     def setUp(self):
         self.app = server.app.test_client()
         server.initialize_logging(logging.CRITICAL)
         server.init_db()
         server.data_reset()
-        server.data_load({"name": "fido", "time": "dog", "status": True})
-        server.data_load({"name": "kitty", "time": "cat", "status": True})
+        server.data_load({"name": "fido", "time": "09/15", "status": True})
+        server.data_load({"name": "kitty", "time": "06/06", "status": True})
 
     def test_index(self):
         """ Test the index page """
@@ -79,7 +82,7 @@ class TestOrderServer(unittest.TestCase):
         # save the current number of orders for later comparrison
         order_count = self.get_order_count()
         # add a new order
-        new_order = {'name': 'sammy', 'time': 'snake', 'status': True}
+        new_order = {'name': 'sammy', 'time': '04/14', 'status': True}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_201_CREATED)
@@ -99,26 +102,26 @@ class TestOrderServer(unittest.TestCase):
 
     def test_update_order(self):
         """ Update a Order """
-        new_kitty = {'name': 'kitty', 'time': 'tabby', 'status': True}
-        data = json.dumps(new_kitty)
+        new_order = {'name': 'kitty', 'time': '12/21', 'status': True}
+        data = json.dumps(new_order)
         resp = self.app.put('/orders/2', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_200_OK)
         resp = self.app.get('/orders/2', content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_200_OK)
         new_json = json.loads(resp.data)
-        self.assertEqual(new_json['time'], 'tabby')
+        self.assertEqual(new_json['time'], '12/21')
 
     def test_update_order_with_no_name(self):
         """ Update a Order without assigning a name """
-        new_order = {'time': 'dog'}
+        new_order = {'time': '11/11'}
         data = json.dumps(new_order)
         resp = self.app.put('/orders/2', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
 
     def test_update_order_not_found(self):
         """ Update a Order that doesn't exist """
-        new_kitty = {"name": "timothy", "time": "mouse"}
-        data = json.dumps(new_kitty)
+        new_order = {"name": "timothy", "time": "12/12"}
+        data = json.dumps(new_order)
         resp = self.app.put('/orders/0', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
@@ -135,14 +138,14 @@ class TestOrderServer(unittest.TestCase):
 
     def test_create_order_with_no_name(self):
         """ Create a Order without a name """
-        new_order = {'time': 'dog'}
+        new_order = {'time': '12/01'}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
 
     def test_create_order_no_content_type(self):
         """ Create a Order with no Content-Type """
-        new_order = {'time': 'dog'}
+        new_order = {'time': '12/01'}
         data = json.dumps(new_order)
         resp = self.app.post('/orders', data=data)
         self.assertEqual(resp.status_code, HTTP_400_BAD_REQUEST)
@@ -153,22 +156,33 @@ class TestOrderServer(unittest.TestCase):
         self.assertEqual(resp.status_code, HTTP_404_NOT_FOUND)
 
     def test_call_create_with_an_id(self):
-        """ Call create passing anid """
-        new_order = {'name': 'sammy', 'time': 'snake'}
+        """ Call create passing an id """
+        new_order = {'name': 'sammy', 'time': '12/02'}
         data = json.dumps(new_order)
         resp = self.app.post('/orders/1', data=data)
         self.assertEqual(resp.status_code, HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_query_order_list(self):
+    def test_query_order_list_by_time(self):
         """ Query Orders by time """
-        resp = self.app.get('/orders', query_string='time=dog')
+        resp = self.app.get('/orders', query_string='time=09/15')
         self.assertEqual(resp.status_code, HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
         self.assertIn('fido', resp.data)
         self.assertNotIn('kitty', resp.data)
         data = json.loads(resp.data)
         query_item = data[0]
-        self.assertEqual(query_item['time'], 'dog')
+        self.assertEqual(query_item['time'], '09/15')
+
+    def test_query_order_list_by_name(self):
+        """ Query Orders by name """
+        resp = self.app.get('/orders', query_string='name=fido')
+        self.assertEqual(resp.status_code, HTTP_200_OK)
+        self.assertTrue(len(resp.data) > 0)
+        self.assertIn('fido', resp.data)
+        self.assertNotIn('kitty', resp.data)
+        data = json.loads(resp.data)
+        query_item = data[0]
+        self.assertEqual(query_item['name'], 'fido')
 
     def test_purchase_a_order(self):
         """ Purchase a Order """
@@ -178,6 +192,13 @@ class TestOrderServer(unittest.TestCase):
         self.assertEqual(resp.status_code, HTTP_200_OK)
         order_data = json.loads(resp.data)
         self.assertEqual(order_data['status'], False)
+
+    def test_purchase_not_order(self):
+        """ Purchase a Order that does not exit """
+        resp = self.app.put('/orders/7/purchase', content_type='application/json')
+        self.assertEqual(resp.status_code,HTTP_404_NOT_FOUND)
+        resp_json = json.loads(resp.get_data())
+        self.assertIn('not found', resp_json['message'])
 
     def test_purchase_not_status(self):
         """ Purchase a Order that is not status """
