@@ -15,7 +15,7 @@ before_script:
   - sleep 3 # give Web server some time to bind to sockets, etc
 
 script:
-  - nosetests
+  - nosetests tests
   - behave
   # - nosetests tests/test_selenium.py
   # - coverage run tests/test_server.py
