@@ -80,6 +80,11 @@ def list_orders():
         description: the time of Order you are looking for
         required: false
         type: string
+      - name: status
+        in: query
+        description: the status of the order
+        required: false
+        type: boolean
     responses:
       200:
         description: An array of Orders
@@ -98,6 +103,9 @@ def list_orders():
                 time:
                   type: string
                   description: the time of an order placed
+                status:
+                  type: boolean
+                  description: the status of the order
     """
     orders = []
     time = request.args.get('time')
@@ -116,8 +124,8 @@ def list_orders():
 ######################################################################
 # RETRIEVE AN ORDER
 ######################################################################
-@app.route('/orders/<int:order_id>', methods=['GET'])
-def get_orders(order_id):
+@app.route('/orders/<int:id>', methods=['GET'])
+def get_orders(id):
     """
     Retrieve a single Order
     This endpoint will return a Order based on it's id
@@ -147,12 +155,16 @@ def get_orders(order_id):
             time:
               type: string
               description: the time of order placed
+            status:
+              type: boolean
+              description: the status of the order
+
       404:
         description: Order not found
     """
-    order = Order.find(order_id)
+    order = Order.find(id)
     if not order:
-        raise NotFound("Order with id '{}' was not found.".format(order_id))
+        raise NotFound("Order with id '{}' was not found.".format(id))
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
@@ -179,6 +191,7 @@ def create_orders():
           required:
             - name
             - time
+            - status
           properties:
             name:
               type: string
@@ -186,6 +199,9 @@ def create_orders():
             time:
               type: string
               description: the time of order placed
+            status:
+              type: boolean
+              description: the status of the order
     responses:
       201:
         description: Order created
@@ -201,6 +217,9 @@ def create_orders():
             time:
               type: string
               description: the time of order placed
+            status:
+              type: boolean
+              description: the status of the order
       400:
         description: Bad Request (the posted data was not valid)
     """
@@ -221,7 +240,7 @@ def create_orders():
     order.deserialize(data)
     order.save()
     message = order.serialize()
-    location_url = url_for('get_orders', order_id=order.id, _external=True)
+    location_url = url_for('get_orders', id=order.id, _external=True)
     return make_response(jsonify(message), status.HTTP_201_CREATED,
                          {'Location': location_url})
 
@@ -229,8 +248,8 @@ def create_orders():
 ######################################################################
 # UPDATE AN EXISTING ORDER
 ######################################################################
-@app.route('/orders/<int:order_id>', methods=['PUT'])
-def update_orders(order_id):
+@app.route('/orders/<int:id>', methods=['PUT'])
+def update_orders(id):
     """
     Update a Order
     This endpoint will update a Order based the body that is posted
@@ -254,6 +273,7 @@ def update_orders(order_id):
           required:
             - name
             - time
+            - status
           properties:
             name:
               type: string
@@ -261,6 +281,9 @@ def update_orders(order_id):
             time:
               type: string
               description: the time of order palced
+            status:
+              type: boolean
+              description: the status of the order
     responses:
       200:
         description: Order Updated
@@ -276,25 +299,28 @@ def update_orders(order_id):
             time:
               type: string
               description: the time of order placed
+            status:
+              type: boolean
+              description: the status of the order
       400:
         description: Bad Request (the posted data was not valid)
     """
     check_content_type('application/json')
-    order = Order.find(order_id)
+    order = Order.find(id)
     if not order:
-        raise NotFound("Order with id '{}' was not found.".format(order_id))
+        raise NotFound("Order with id '{}' was not found.".format(id))
     data = request.get_json()
     app.logger.info(data)
     order.deserialize(data)
-    order.id = order_id
+    order.id = id
     order.save()
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
 
 ######################################################################
 # DELETE AN ORDER
 ######################################################################
-@app.route('/orders/<int:order_id>', methods=['DELETE'])
-def delete_orders(order_id):
+@app.route('/orders/<int:id>', methods=['DELETE'])
+def delete_orders(id):
     """
     Delete a Order
     This endpoint will delete a Order based the id specified in the path
@@ -312,22 +338,22 @@ def delete_orders(order_id):
       204:
         description: Order deleted
     """
-    order = Order.find(order_id)
+    order = Order.find(id)
     if order:
         order.delete()
     return make_response('', status.HTTP_204_NO_CONTENT)
 
 ######################################################################
 # PURCHASE AN ORDER
-######################################################################
-@app.route('/orders/<int:order_id>/purchase', methods=['PUT'])
-def purchase_orders(order_id):
+#############################g#########################################
+@app.route('/orders/<int:id>/purchase', methods=['PUT'])
+def purchase_orders(id):
     """ Purchasing an Order makes it unstatus """
-    order = Order.find(order_id)
+    order = Order.find(id)
     if not order:
-        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' was not found.".format(order_id))
+        abort(status.HTTP_404_NOT_FOUND, "Order with id '{}' was not found.".format(id))
     if not order.status:
-        abort(status.HTTP_400_BAD_REQUEST, "Order with id '{}' is not status.".format(order_id))
+        abort(status.HTTP_400_BAD_REQUEST, "Order with id '{}' is not status.".format(id))
     order.status = False
     order.save()
     return make_response(jsonify(order.serialize()), status.HTTP_200_OK)
