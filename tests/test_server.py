@@ -47,8 +47,8 @@ class TestOrderServer(unittest.TestCase):
         server.initialize_logging(logging.CRITICAL)
         server.init_db()
         server.data_reset()
-        server.data_load({"name": "fido", "time": "09/15", "status": True})
-        server.data_load({"name": "kitty", "time": "06/06", "status": True})
+        server.data_load({"name": "fred", "time": "09/15", "status": True})
+        server.data_load({"name": "kate", "time": "06/06", "status": True})
 
     def test_index(self):
         """ Test the index page """
@@ -68,7 +68,7 @@ class TestOrderServer(unittest.TestCase):
         #print 'resp_data: ' + resp.data
         self.assertEqual(resp.status_code, HTTP_200_OK)
         data = json.loads(resp.data)
-        self.assertEqual(data['name'], 'kitty')
+        self.assertEqual(data['name'], 'kate')
 
     def test_get_order_not_found(self):
         """ Get a Order that doesn't exist """
@@ -102,7 +102,7 @@ class TestOrderServer(unittest.TestCase):
 
     def test_update_order(self):
         """ Update a Order """
-        new_order = {'name': 'kitty', 'time': '12/21', 'status': True}
+        new_order = {'name': 'kate', 'time': '12/21', 'status': True}
         data = json.dumps(new_order)
         resp = self.app.put('/orders/2', data=data, content_type='application/json')
         self.assertEqual(resp.status_code, HTTP_200_OK)
@@ -167,22 +167,22 @@ class TestOrderServer(unittest.TestCase):
         resp = self.app.get('/orders', query_string='time=09/15')
         self.assertEqual(resp.status_code, HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
-        self.assertIn('fido', resp.data)
-        self.assertNotIn('kitty', resp.data)
+        self.assertIn('fred', resp.data)
+        self.assertNotIn('kate', resp.data)
         data = json.loads(resp.data)
         query_item = data[0]
         self.assertEqual(query_item['time'], '09/15')
 
     def test_query_order_list_by_name(self):
         """ Query Orders by name """
-        resp = self.app.get('/orders', query_string='name=fido')
+        resp = self.app.get('/orders', query_string='name=fred')
         self.assertEqual(resp.status_code, HTTP_200_OK)
         self.assertTrue(len(resp.data) > 0)
-        self.assertIn('fido', resp.data)
-        self.assertNotIn('kitty', resp.data)
+        self.assertIn('fred', resp.data)
+        self.assertNotIn('kate', resp.data)
         data = json.loads(resp.data)
         query_item = data[0]
-        self.assertEqual(query_item['name'], 'fido')
+        self.assertEqual(query_item['name'], 'fred')
 
     def test_purchase_a_order(self):
         """ Purchase a Order """

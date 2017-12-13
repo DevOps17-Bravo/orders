@@ -6,8 +6,8 @@ Feature: The order store service back-end
 Background:
     Given the following orders
         | id | name       | time | status |
-        |  1 | fido       | 06/06      | True      |
-        |  2 | kitty      | 09/15      | True      |
+        |  1 | fred       | 06/06      | True      |
+        |  2 | kate      | 09/15      | True      |
         |  3 | leo        | 04/14     | True      |
 
 Scenario: The server is running
@@ -25,31 +25,31 @@ Scenario: Create an Order
 Scenario: List all orders
     When I visit the "Home Page"
     And I press the "Search" button
-    Then I should see "fido" in the results
-    And I should see "kitty" in the results
+    Then I should see "fred" in the results
+    And I should see "kate" in the results
     And I should see "leo" in the results
 
-Scenario: Query by Customer Id 
+Scenario: Query by Customer Id
     When I visit the "Home Page"
-    And I set the "Name" to "fido"
+    And I set the "Name" to "fred"
     And I press the "Search" button
-    Then I should see "fido" in the results
-    And I should not see "kitty" in the results
+    Then I should see "fred" in the results
+    And I should not see "kate" in the results
     And I should not see "leo" in the results
 
-Scenario: Query by Time 
+Scenario: Query by Time
     When I visit the "Home Page"
     And I set the "Time" to "09/15"
     And I press the "Search" button
-    Then I should see "kitty" in the results
+    Then I should see "kate" in the results
     And I should not see "leo" in the results
-    And I should not see "fido" in the results
+    And I should not see "fred" in the results
 
 Scenario: Update an Order
     When I visit the "Home Page"
     And I set the "Id" to "1"
     And I press the "Retrieve" button
-    Then I should see "fido" in the "Name" field
+    Then I should see "fred" in the "Name" field
     When I change "Name" to "Boxer"
     And I press the "Update" button
     Then I should see the message "Success"
@@ -59,15 +59,15 @@ Scenario: Update an Order
     When I press the "Clear" button
     And I press the "Search" button
     Then I should see "Boxer" in the results
-    Then I should not see "fido" in the results
+    Then I should not see "fred" in the results
 
 Scenario: Delete an Order
     When I visit the "Home Page"
     And I set the "Id" to "1"
     And I press the "Delete" button
     And I press the "Clear" button
-    And I press the "Search" button 
-    Then I should see "kitty" in the results
+    And I press the "Search" button
+    Then I should see "kate" in the results
     And I should see "leo" in the results
-    And I should not see "fido" in the results
+    And I should not see "fred" in the results
 

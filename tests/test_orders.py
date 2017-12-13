@@ -48,18 +48,18 @@ class TestOrders(unittest.TestCase):
 
     def test_create_a_order(self):
         """ Create a order and assert that it exists """
-        order = Order(0, "fido", "dog", False)
+        order = Order(0, "fred", "09/15", False)
         self.assertNotEqual(order, None)
         self.assertEqual(order.id, 0)
-        self.assertEqual(order.name, "fido")
-        self.assertEqual(order.time, "dog")
+        self.assertEqual(order.name, "fred")
+        self.assertEqual(order.time, "09/15")
         self.assertEqual(order.status, False)
 
     def test_add_a_order(self):
         """ Create a order and add it to the database """
         orders = Order.all()
         self.assertEqual(orders, [])
-        order = Order(0, "fido", "dog", True)
+        order = Order(0, "fred", "09/15", True)
         self.assertTrue(order != None)
         self.assertEqual(order.id, 0)
         order.save()
@@ -68,13 +68,13 @@ class TestOrders(unittest.TestCase):
         orders = Order.all()
         self.assertEqual(len(orders), 1)
         self.assertEqual(orders[0].id, 1)
-        self.assertEqual(orders[0].name, "fido")
-        self.assertEqual(orders[0].time, "dog")
+        self.assertEqual(orders[0].name, "fred")
+        self.assertEqual(orders[0].time, "09/15")
         self.assertEqual(orders[0].status, True)
 
     def test_update_a_order(self):
         """ Update a Order """
-        order = Order(0, "fido", "dog", True)
+        order = Order(0, "fred", "09/15", True)
         order.save()
         self.assertEqual(order.id, 1)
         # Change it an save it
@@ -86,11 +86,11 @@ class TestOrders(unittest.TestCase):
         orders = Order.all()
         self.assertEqual(len(orders), 1)
         self.assertEqual(orders[0].time, "k9")
-        self.assertEqual(orders[0].name, "fido")
+        self.assertEqual(orders[0].name, "fred")
 
     def test_delete_a_order(self):
         """ Delete a Order """
-        order = Order(0, "fido", "dog")
+        order = Order(0, "fred", "09/15")
         order.save()
         self.assertEqual(len(Order.all()), 1)
         # delete the order and make sure it isn't in the database
@@ -99,29 +99,29 @@ class TestOrders(unittest.TestCase):
 
     def test_serialize_a_order(self):
         """ Serialize a Order """
-        order = Order(0, "fido", "dog")
+        order = Order(0, "fred", "09/15")
         data = order.serialize()
         self.assertNotEqual(data, None)
         self.assertIn('id', data)
         self.assertEqual(data['id'], 0)
         self.assertIn('name', data)
-        self.assertEqual(data['name'], "fido")
+        self.assertEqual(data['name'], "fred")
         self.assertIn('time', data)
-        self.assertEqual(data['time'], "dog")
+        self.assertEqual(data['time'], "09/15")
 
     def test_deserialize_a_order(self):
         """ Deserialize a Order """
-        data = {"id":1, "name": "kitty", "time": "cat", "status": True}
+        data = {"id":1, "name": "kate", "time": "06/06", "status": True}
         order = Order(data['id'])
         order.deserialize(data)
         self.assertNotEqual(order, None)
         self.assertEqual(order.id, 1)
-        self.assertEqual(order.name, "kitty")
-        self.assertEqual(order.time, "cat")
+        self.assertEqual(order.name, "kate")
+        self.assertEqual(order.time, "06/06")
 
     def test_deserialize_with_no_name(self):
         """ Deserialize a Order that has no name """
-        data = {"id":0, "time": "cat"}
+        data = {"id":0, "time": "06/06"}
         order = Order(0)
         self.assertRaises(DataValidationError, order.deserialize, data)
 
@@ -137,17 +137,17 @@ class TestOrders(unittest.TestCase):
 
     def test_save_a_order_with_no_name(self):
         """ Save a Order with no name """
-        order = Order(0, None, "cat")
+        order = Order(0, None, "06/06")
         self.assertRaises(DataValidationError, order.save)
 
     def test_find_order(self):
         """ Find a Order by id """
-        Order(0, "fido", "dog").save()
-        Order(0, "kitty", "cat").save()
+        Order(0, "fred", "09/15").save()
+        Order(0, "kate", "06/06").save()
         order = Order.find(2)
         self.assertIsNot(order, None)
         self.assertEqual(order.id, 2)
-        self.assertEqual(order.name, "kitty")
+        self.assertEqual(order.name, "kate")
 
     def test_find_with_no_orders(self):
         """ Find a Order with empty database """
@@ -156,46 +156,46 @@ class TestOrders(unittest.TestCase):
 
     def test_order_not_found(self):
         """ Find a Order that doesnt exist """
-        Order(0, "fido", "dog").save()
+        Order(0, "fred", "09/15").save()
         order = Order.find(2)
         self.assertIs(order, None)
 
     def test_find_by_name(self):
         """ Find a Order by Name """
-        Order(0, "fido", "dog").save()
-        Order(0, "kitty", "cat").save()
-        orders = Order.find_by_name("fido")
+        Order(0, "fred", "09/15").save()
+        Order(0, "kate", "06/06").save()
+        orders = Order.find_by_name("fred")
         self.assertNotEqual(len(orders), 0)
-        self.assertEqual(orders[0].time, "dog")
-        self.assertEqual(orders[0].name, "fido")
+        self.assertEqual(orders[0].time, "09/15")
+        self.assertEqual(orders[0].name, "fred")
 
     def test_find_by_time(self):
         """ Find a Order by Time """
-        Order(0, "fido", "dog").save()
-        Order(0, "kitty", "cat").save()
-        orders = Order.find_by_time("cat")
+        Order(0, "fred", "09/15").save()
+        Order(0, "kate", "06/06").save()
+        orders = Order.find_by_time("06/06")
         self.assertNotEqual(len(orders), 0)
-        self.assertEqual(orders[0].time, "cat")
-        self.assertEqual(orders[0].name, "kitty")
+        self.assertEqual(orders[0].time, "06/06")
+        self.assertEqual(orders[0].name, "kate")
 
     def test_find_by_availability(self):
         """ Find a Order by Availability """
-        Order(0, "fido", "dog", False).save()
-        Order(0, "kitty", "cat", True).save()
+        Order(0, "fred", "09/15", False).save()
+        Order(0, "kate", "06/06", True).save()
         orders = Order.find_by_availability(True)
         self.assertEqual(len(orders), 1)
-        self.assertEqual(orders[0].name, "kitty")
+        self.assertEqual(orders[0].name, "kate")
 
     def test_for_case_insensitive(self):
         """ Test for Case Insensitive Search """
-        Order(0, "Fido", "DOG").save()
-        Order(0, "Kitty", "CAT").save()
-        orders = Order.find_by_name("fido")
+        Order(0, "fred", "09/15").save()
+        Order(0, "kate", "06/06").save()
+        orders = Order.find_by_name("fred")
         self.assertNotEqual(len(orders), 0)
-        self.assertEqual(orders[0].name, "Fido")
-        orders = Order.find_by_time("cat")
+        self.assertEqual(orders[0].name, "fred")
+        orders = Order.find_by_time("06/06")
         self.assertNotEqual(len(orders), 0)
-        self.assertEqual(orders[0].time, "CAT")
+        self.assertEqual(orders[0].time, "06/06")
 
 #    @patch.dict(os.environ, {'VCAP_SERVICES': json.dumps(VCAP_SERVICES).encode('utf8')})
     @patch.dict(os.environ, {'VCAP_SERVICES': VCAP_SERVICES})
