@@ -11,77 +11,50 @@ The Swagger docs can be accessed at: http://localhost:8080/apidocs/index.html
 The raw Swagger specification JSON can be found at: http://localhost:8080/v1/spec
 
 
-## 1. Instructions for using the environment 
+## Prerequisite : Vagrant and VirtualBox
 
--**Download from github:**
+## Get the code
+From a terminal navigate to a location where you want this application code to be downloaded to and issue:
+```bash
+    $ git clone https://github.com/DevOps17-Bravo/orders.git
+    $ cd orders
+    $ vagrant up
+    $ vagrant ssh
+    $ cd /vagrant
 ```
-git clone https://github.com/DevOps17-Bravo/orders.git
-```
+This will place you into an Ubuntu VM all set to run the code.
 
--**Enter the folder:**
-```
-cd orders
-```
+You can run the code to test it out in your browser with the following command:
 
--**to start vm:**
-```
-vagrant up
-```
+    $ python run.py
 
--**to update vagrantfile:**
-```
-vagrant provision
-```
+You should be able to see it at: http://localhost:8080/
 
--**connect to the environment:**
+Swagger doc page: http://localhost:8080/apidocs/index.html
+
+When you are done, you can use `Ctrl+C` to stop the server and then exit and shut down the vm with:
+
+    $ vagrant halt
+
+## BlueMix deployment
+
+Once there is an update on the master branch, BlueMix will auto build/deploy the latest working copy.
+
+    URL of your Swagger docs:
+    http://nyu-order-service-f17.mybluemix.net/apidocs/
+    http://pipeline-nyu-order-service-f17.mybluemix.net/apidocs/
+
+    PROD:
+    http://pipeline-nyu-order-service-f17.mybluemix.net/
+
+    DEV:
+    http://nyu-order-service-f17.mybluemix.net/
+
+## BDD / TDD tests command when running locally
+
+Use the following commands to test BDD and TDD results.
+```bash
+    BDD: $ behave
+    TDD: $ nosetests
 ```
-vagrant ssh
-```
-
--**get into folder:** 
-```
-cd /vagrant
-```
-
--**run server:**
-```
-python server.py
-```
-
--**exit environment:**
-```
-exit
-```
-
--**shut down vm:**
-```
-vagrant halt
-```
-
--**how to run coverage:**
-```
- coverage run --omit "venv/*" test_server.py
-
- coverage report -m --include= server.py
-
- result coverage: 91%
-
- coverage run --omit "venv/*" test_orders.py
-
- coverage report -m --include= models.py
-
- result coverage: 98%
- ```
- 
- -**how to run the BDD and TDD tests:**
- ```
- cd /vagrant
-
- # BDD
- python run.py &
- behave
-
- # TDD
- nosetests
- ```
  
