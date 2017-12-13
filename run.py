@@ -1,6 +1,6 @@
 """
 Order Service Runner
-Start the Pet Service and initializes logging
+Start the Order Service and initializes logging
 """
 
 import os
